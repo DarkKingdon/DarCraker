@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarCraker - Início</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; }
+        .status { margin-top: 15px; background: #2a2a2a; padding: 10px; border-radius: 5px; }
+        button { background: #f44336; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>Bem-vindo ao DarCraker!</h1>
+        <div class="status">
+            <p><strong>Herói:</strong> <span id="heroi-nome">---</span></p>
+            <p><strong>Vida:</strong> <span id="heroi-vida">--/--</span> HP</p>
+        </div>
+        <button onclick="sair()">Sair (Logout)</button>
+    </div>
+
+    <script>
+        // Recupera dados salvos do login
+        const heroiData = localStorage.getItem('heroi');
+
+        if (!heroiData) {
+            // Se não estiver logado, redireciona para a página de login
+            window.location.href = 'index.html';
+        } else {
+            const heroi = JSON.parse(heroiData);
+            document.getElementById('heroi-nome').innerText = heroi.nome_heroi;
+            document.getElementById('heroi-vida').innerText = `${heroi.vida_atual} / ${heroi.vida_maxima}`;
+        }
+
+        function sair() {
+            localStorage.removeItem('heroi');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
