@@ -1,21 +1,26 @@
 const express = require('express');
-const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos estáticos da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Conexão com o Supabase PostgreSQL (SSL é obrigatório)
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+// Inicializar cliente do Supabase via HTTP (Isso evita os erros de IPv6/Portas no Render!)
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://gzrdpytgkcbyfseigqai.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6cmRweXRna2NieWZzZWlncWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2MDkwMDMsImV4cCI6MjEwMDE4NTAwM30.8KHtRsTb8tBPHcnIZlqZ2vVA93q0MDNeRybIngHiS-I';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Rota principal
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Rota de Cadastro
@@ -27,21 +32,23 @@ app.post('/api/cadastro', async (req, res) => {
     }
 
     try {
-        // Criptografa a senha antes de salvar
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        const result = await pool.query(
-            `INSERT INTO usuarios (nome_heroi, email, senha, vida_atual, vida_maxima) 
-             VALUES ($1, $2, $3, 10, 10) RETURNING id, nome_heroi, email, vida_atual, vida_maxima`,
-            [nome_heroi, email, senhaHash]
-        );
+        const { data, error } = await supabase
+            .from('usuarios')
+            .insert([
+                { nome_heroi, email, senha: senhaHash, vida_atual: 10, vida_maxima: 10 }
+            ])
+            .select();
 
-        res.status(201).json({ message: 'Heroi cadastrado com sucesso!', usuario: result.rows[0] });
-    } catch (err) {
-        if (err.code === '23505') {
-            return res.status(400).json({ error: 'Nome do Herói ou E-mail já cadastrado!' });
+        if (error) {
+            console.error('Erro no Supabase:', error.message);
+            return res.status(500).json({ error: error.message });
         }
-        console.error(err);
+
+        res.status(201).json({ message: 'Herói cadastrado com sucesso!', usuario: data[0] });
+    } catch (err) {
+        console.error('Erro interno:', err.message);
         res.status(500).json({ error: 'Erro no servidor ao cadastrar.' });
     }
 });
@@ -55,33 +62,33 @@ app.post('/api/login', async (req, res) => {
     }
 
     try {
-        const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-        
-        if (result.rows.length === 0) {
-            return res.status(400).json({ error: 'Usuário não encontrado!' });
+        const { data: usuario, error } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('email', email)
+            .single();
+
+        if (error || !usuario) {
+            return res.status(400).json({ error: 'E-mail ou senha incorretos!' });
         }
 
-        const usuario = result.rows[0];
         const senhaValida = await bcrypt.compare(senha, usuario.senha);
-
         if (!senhaValida) {
-            return res.status(400).json({ error: 'Senha incorreta!' });
+            return res.status(400).json({ error: 'E-mail ou senha incorretos!' });
         }
 
-        // Retorna os dados do herói (sem a senha)
         res.json({
             message: 'Login realizado com sucesso!',
             usuario: {
                 id: usuario.id,
                 nome_heroi: usuario.nome_heroi,
-                email: usuario.email,
                 vida_atual: usuario.vida_atual,
                 vida_maxima: usuario.vida_maxima
             }
         });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Erro no servidor ao fazer login.' });
+        console.error('Erro interno:', err.message);
+        res.status(500).json({ error: 'Erro interno no servidor.' });
     }
 });
 
