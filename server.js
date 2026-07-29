@@ -96,7 +96,8 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Porta dinâmica (3000 para local ou a fornecida pelo Render/servidor)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor rodando localmente em http://localhost:${PORT}`);
 });
