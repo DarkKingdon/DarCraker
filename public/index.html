@@ -60,60 +60,66 @@
     </div>
 
     <script>
-        function alternarFormulario(tipo) {
-            if (tipo === 'cadastro') {
-                document.getElementById('form-login').style.display = 'none';
-                document.getElementById('form-cadastro').style.display = 'block';
-            } else {
-                document.getElementById('form-cadastro').style.display = 'none';
-                document.getElementById('form-login').style.display = 'block';
-            }
+    // URL dinâmica: se estiver rodando no PC (localhost), usa a porta 3000. 
+    // Se estiver online no Render, usa a URL completa do seu backend.
+    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : 'https://darcraker-2026-render-supabase-back-end.onrender.com';
+
+    function alternarFormulario(tipo) {
+        if (tipo === 'cadastro') {
+            document.getElementById('form-login').style.display = 'none';
+            document.getElementById('form-cadastro').style.display = 'block';
+        } else {
+            document.getElementById('form-cadastro').style.display = 'none';
+            document.getElementById('form-login').style.display = 'block';
         }
+    }
 
-        async function fazerCadastro() {
-            const nome_heroi = document.getElementById('cad-nome').value;
-            const email = document.getElementById('cad-email').value;
-            const senha = document.getElementById('cad-senha').value;
-            const msg = document.getElementById('msg-cadastro');
+    async function fazerCadastro() {
+        const nome_heroi = document.getElementById('cad-nome').value;
+        const email = document.getElementById('cad-email').value;
+        const senha = document.getElementById('cad-senha').value;
+        const msg = document.getElementById('msg-cadastro');
 
-            const res = await fetch('/api/cadastro', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome_heroi, email, senha })
-            });
+        const res = await fetch(`${API_URL}/api/cadastro`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome_heroi, email, senha })
+        });
 
-            const data = await res.json();
-            if (res.ok) {
-                msg.className = 'msg sucesso';
-                msg.innerText = 'Cadastrado com sucesso! Faça login.';
-                setTimeout(() => alternarFormulario('login'), 1500);
-            } else {
-                msg.className = 'msg erro';
-                msg.innerText = data.error || 'Erro ao cadastrar';
-            }
+        const data = await res.json();
+        if (res.ok) {
+            msg.className = 'msg sucesso';
+            msg.innerText = 'Cadastrado com sucesso! Faça login.';
+            setTimeout(() => alternarFormulario('login'), 1500);
+        } else {
+            msg.className = 'msg erro';
+            msg.innerText = data.error || 'Erro ao cadastrar';
         }
+    }
 
-        async function fazerLogin() {
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-            const msg = document.getElementById('msg-login');
+    async function fazerLogin() {
+        const email = document.getElementById('login-email').value;
+        const senha = document.getElementById('login-senha').value;
+        const msg = document.getElementById('msg-login');
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            });
+        const res = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
+        });
 
-            const data = await res.json();
-            if (res.ok) {
-                // Guarda os dados do herói no navegador e redireciona
-                localStorage.setItem('heroi', JSON.stringify(data.usuario));
-                window.location.href = 'inicio.html';
-            } else {
-                msg.className = 'msg erro';
-                msg.innerText = data.error || 'Erro ao fazer login';
-            }
+        const data = await res.json();
+        if (res.ok) {
+            // Guarda os dados do herói no navegador e redireciona
+            localStorage.setItem('heroi', JSON.stringify(data.usuario));
+            window.location.href = 'inicio.html';
+        } else {
+            msg.className = 'msg erro';
+            msg.innerText = data.error || 'Erro ao fazer login';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
