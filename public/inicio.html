@@ -5,40 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DarCraker - Início</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
-        .box { background: #1e1e1e; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; }
-        .status { margin-top: 15px; background: #2a2a2a; padding: 10px; border-radius: 5px; }
-        button { background: #f44336; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; margin-top: 15px; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0d0d0d;
+            color: #fff;
+            height: 100vh;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 🔵 RETÂNGULO AZUL (Menu Superior) */
+        .top-bar {
+            border: 2px solid #00a2ff;
+            background-color: #121212;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 6px;
+        }
+
+        .btn-menu {
+            background-color: #1e1e1e;
+            color: #00ff88;
+            border: 1px solid #00ff88;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-menu:hover {
+            background-color: #00ff88;
+            color: #121212;
+        }
+
+        .btn-sair {
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        .btn-sair:hover {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        /* ÁREA PRINCIPAL (Layout em 3 Colunas) */
+        .main-container {
+            display: grid;
+            grid-template-columns: 250px 1fr 250px;
+            gap: 10px;
+            flex: 1;
+        }
+
+        /* 🟡 RETÂNGULOS AMARELOS (Painéis Laterais) */
+        .side-panel {
+            border: 2px solid #ffd700;
+            background-color: #121212;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 🔴 RETÂNGULO VERMELHO (Painel de Status do Herói) */
+        .status-box {
+            border: 2px solid #ff3333;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 6px;
+            display: block; /* Visível por padrão ao iniciar */
+        }
+
+        .status-box h3 {
+            font-size: 16px;
+            color: #ff3333;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .status-box p {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        /* ⚪ RETÂNGULO BRANCO (Tela de Combate / Centro) */
+        .combat-screen {
+            border: 2px solid #ffffff;
+            background-color: #121212;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h1>Bem-vindo ao DarCraker!</h1>
-        <div class="status">
-            <p><strong>Herói:</strong> <span id="heroi-nome">---</span></p>
-            <p><strong>Vida:</strong> <span id="heroi-vida">--/--</span> HP</p>
-        </div>
-        <button onclick="sair()">Sair (Logout)</button>
-    </div>
+    <!-- 🔵 MENU SUPERIOR (AZUL) -->
+    <header class="top-bar">
+        <button id="btn-status" class="btn-menu">Status</button>
+        <button id="btn-sair" class="btn-menu btn-sair">Sair</button>
+    </header>
 
-    <script>
-        // Recupera dados salvos do login
-        const heroiData = localStorage.getItem('heroi');
+    <!-- ÁREA CENTRAL -->
+    <main class="main-container">
 
-        if (!heroiData) {
-            // Se não estiver logado, redireciona para a página de login
-            window.location.href = 'index.html';
-        } else {
-            const heroi = JSON.parse(heroiData);
-            document.getElementById('heroi-nome').innerText = heroi.nome_heroi;
-            document.getElementById('heroi-vida').innerText = `${heroi.vida_atual} / ${heroi.vida_maxima}`;
-        }
+        <!-- 🟡 PAINEL ESQUERDO (AMARELO) -->
+        <aside class="side-panel">
+            <!-- 🔴 PAINEL DE STATUS (VERMELHO) -->
+            <div id="painel-status" class="status-box">
+                <h3>Status do Herói</h3>
+                <p><strong>Nome:</strong> <span id="heroi-nome">---</span></p>
+                <p><strong>Vida:</strong> <span id="heroi-vida">--/--</span></p>
+            </div>
+        </aside>
 
-        function sair() {
-            localStorage.removeItem('heroi');
-            window.location.href = 'index.html';
-        }
+        <!-- ⚪ TELA DE COMBATE (BRANCO) -->
+        <section class="combat-screen">
+            <h2>⚔️ Tela de Combate</h2>
+            <p style="color: #aaa; margin-top: 10px;">Área pronta para o desenvolvimento dos confrontos!</p>
+        </section>
+
+        <!-- 🟡 PAINEL DIREITO (AMARELO - Reservado para Mochila/Outros) -->
+        <aside class="side-panel">
+            <!-- Reservado para o futuro -->
+        </aside>
+
+    </main>
+
+    <!-- Importação do Módulo JavaScript -->
+    <script type="module">
+        import { carregarStatus, toggleStatus, sair } from './modulos/ui.js';
+
+        // Inicializa os dados do herói
+        carregarStatus();
+
+        // Configura os botões do menu superior
+        document.getElementById('btn-status').addEventListener('click', toggleStatus);
+        document.getElementById('btn-sair').addEventListener('click', sair);
     </script>
 </body>
 </html>
