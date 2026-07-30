@@ -1,3 +1,4 @@
+// public/modulos/modulo_menu_superior.js
 import { iniciarCombate } from './modulo_tela_de_combate.js';
 
 export function toggleStatus() {
@@ -117,9 +118,9 @@ async function abrirModalHunts() {
         document.body.appendChild(modal);
     }
 
-    // Carrega a lista de monstros
+    // Carrega a lista de monstros (Caminho /img/poring.png corrigido!)
     let monstros = [
-        { id: 1, nome: 'Poring', nivel: 1, imagem_url: './img/poring.png', vida_atual: 5, vida_maxima: 5, mana_minima: 5, mana_maxima: 5, ataque_minimo: 1, ataque_maximo: 2, defesa_minima: 0, defesa_maxima: 1, recompensa_exp_atual: 1, recompensa_exp_atual_forca: 1, recompensa_exp_atual_protecao: 1, recompensa_exp_atual_vitalidade: 1, recompensa_exp_atual_inteligencia: 1 }
+        { id: 1, nome: 'Poring', nivel: 1, imagem_url: '/img/poring.png', vida_atual: 5, vida_maxima: 5, mana_minima: 5, mana_maxima: 5, ataque_minimo: 1, ataque_maximo: 2, defesa_minima: 0, defesa_maxima: 1, recompensa_exp_atual: 1, recompensa_exp_atual_forca: 1, recompensa_exp_atual_protecao: 1, recompensa_exp_atual_vitalidade: 1, recompensa_exp_atual_inteligencia: 1 }
     ];
 
     try {
@@ -139,7 +140,7 @@ async function abrirModalHunts() {
             <div class="lista-monstros">
                 ${monstros.map(m => `
                     <div class="item-monstro" data-id="${m.id}">
-                        <img src="${m.imagem_url || './img/poring.png'}" alt="${m.nome}" onerror="this.src='https://via.placeholder.com/40'">
+                        <img src="${m.imagem_url || '/img/poring.png'}" alt="${m.nome}" onerror="this.onerror=null; this.src='https://placehold.co/40x40/333/fff?text=Poring';">
                         <div>
                             <strong>${m.nome}</strong><br>
                             <small style="color:#aaa;">Nível: ${m.nivel}</small>
