@@ -52,7 +52,6 @@ function aplicarEstilosCombate() {
 }
 
 export function iniciarCombate(monstro) {
-    // Busca a versão mais atualizada do herói (sem restaurar a vida!)
     const heroi = JSON.parse(localStorage.getItem('heroi'));
     const container = document.getElementById('tela-combate');
     if (!container) return;
@@ -67,9 +66,9 @@ export function iniciarCombate(monstro) {
         <h3>⚔️ Arena de Combate</h3>
         
         <div class="arena">
-            <!-- Herói (Mostra a vida atual mantida) -->
+            <!-- Herói -->
             <div class="combatente">
-                <img src="./img/heroi.png" onerror="this.src='https://via.placeholder.com/50'" alt="Herói">
+                <img src="./img/heroi.png" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Heroi';" alt="Herói">
                 <div><strong>${heroi.nome_heroi}</strong></div>
                 <div class="bar-hp-bg"><div id="hp-heroi" class="bar-hp-fill" style="width: ${Math.max(0, (heroi.vida_atual / heroi.vida_maxima) * 100)}%;"></div></div>
                 <div class="bar-mp-bg"><div id="mp-heroi" class="bar-mp-fill" style="width: ${Math.max(0, (heroi.mana_atual / heroi.mana_maxima) * 100)}%;"></div></div>
@@ -79,14 +78,14 @@ export function iniciarCombate(monstro) {
 
             <!-- Monstro -->
             <div class="combatente">
-                <img src="${monstro.imagem_url || './img/poring.png'}" onerror="this.src='https://via.placeholder.com/50'" alt="${monstro.nome}">
+                <img src="${monstro.imagem_url || './img/poring.png'}" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Poring';" alt="${monstro.nome}">
                 <div><strong>${monstro.nome}</strong></div>
                 <div class="bar-hp-bg"><div id="hp-monstro" class="bar-hp-fill" style="width: 100%;"></div></div>
                 <div class="bar-mp-bg"><div id="mp-monstro" class="bar-mp-fill" style="width: 100%;"></div></div>
             </div>
         </div>
 
-        <!-- 4 Botoezinhos de Treino -->
+        <!-- Botoezinhos de Treino -->
         <div class="treino-container">
             <button class="btn-treino ${treinoSelecionado === 'forca' ? 'ativo' : ''}" data-treino="forca">Treinar Força</button>
             <button class="btn-treino ${treinoSelecionado === 'protecao' ? 'ativo' : ''}" data-treino="protecao">Treinar Proteção</button>
@@ -96,7 +95,7 @@ export function iniciarCombate(monstro) {
 
         <div id="log-combate" class="log-combate">Clique em Atacar ou ative o modo AUTO!</div>
 
-        <!-- Container da Ação (Temporizador + Botões Atacar e AUTO) -->
+        <!-- Container da Ação -->
         <div style="display: flex; flex-direction: column; align-items: center;">
             <div id="timer-container" class="timer-container">
                 <div id="timer-bar" class="timer-bar"></div>
@@ -109,7 +108,6 @@ export function iniciarCombate(monstro) {
         </div>
     `;
 
-    // Seleção do Treino
     document.querySelectorAll('.btn-treino').forEach(btn => {
         btn.onclick = () => {
             document.querySelectorAll('.btn-treino').forEach(b => b.classList.remove('ativo'));
@@ -118,17 +116,14 @@ export function iniciarCombate(monstro) {
         };
     });
 
-    // Evento de Ataque Manual
     document.getElementById('btn-atacar').onclick = () => {
         executarTurno(heroi, monstro, treinoSelecionado);
     };
 
-    // Evento do Botão AUTO
     document.getElementById('btn-auto').onclick = () => {
         toggleAutoCombate(heroi, monstro, treinoSelecionado);
     };
 
-    // Se o modo AUTO já estava ativo ao carregar o novo monstro, dispara automaticamente o próximo turno!
     if (modoAuto) {
         setTimeout(() => {
             executarTurno(heroi, monstro, treinoSelecionado);
