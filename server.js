@@ -185,6 +185,102 @@ app.put('/api/heroi/:id', async (req, res) => {
     }
 });
 
+// Endpoint para buscar a mochila do usuário
+app.get('/api/mochila/:usuario_id', async (req, res) => {
+    const { usuario_id } = req.params;
+    try {
+        const { data, error } = await supabase
+            .from('mochila')
+            .select(`
+                id,
+                quantidade,
+                slot_index,
+                objetos (*)
+            `)
+            .eq('usuario_id', usuario_id);
+
+        if (error) return res.status(500).json({ error: error.message });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao buscar mochila.' });
+    }
+});
+
+// Endpoint para processar e conceder o drop ao derrotar o monstro
+app.post('/api/combate/drop', async (req, res) => {
+    const { usuario_id, monstro_id } = req.body;
+
+    try {
+        // 1. Busca os possíveis drops do monstro
+        const { data: drops, error } = await supabase
+            .from('monstro_drops')
+            .select('*, objetos(*)')
+            .eq('monstro_id', monstro_id);
+
+        if (error || !drops || drops.length === 0) {
+            return res.json({ dropObtido: null });
+        }
+
+        let itemGanho = null;
+        let quantidadeGanha = 0;
+
+        // 2. Processa a probabilidade de cada item
+        for (const drop of drops) {
+            const Sorteio = Math.random() * 100; // Sorteia entre 0 e 100
+            if (Sorteio <= drop.chance_porcentagem) {
+                // Sorteia a quantidade entre mínima e máxima
+                quantidadeGanha = Math.floor(Math.random() * (drop.qtd_maxima - drop.qtd_minima + 1)) + drop.qtd_minima;
+                itemGanho = drop.objetos;
+                break; // Dropou o item
+            }
+        }
+
+        if (!itemGanho) {
+            return res.json({ dropObtido: null });
+        }
+
+        // 3. Adiciona o item à mochila do jogador
+        const { data: mochilaAtual } = await supabase
+            .from('mochila')
+            .select('*')
+            .eq('usuario_id', usuario_id);
+
+        // Verifica se o item já existe na mochila
+        const itemExistente = mochilaAtual.find(m => m.objeto_id === itemGanho.id);
+
+        if (itemExistente) {
+            // Se já tem, incrementa a quantidade
+            await supabase
+                .from('mochila')
+                .update({ quantidade: itemExistente.quantidade + quantidadeGanha })
+                .eq('id', itemExistente.id);
+        } else {
+            // Procura o primeiro slot vago (de 0 a 19)
+            const slotsOcupados = mochilaAtual.map(m => m.slot_index);
+            let slotLivre = -1;
+            for (let i = 0; i < 20; i++) {
+                if (!slotsOcupados.includes(i)) {
+                    slotLivre = i;
+                    break;
+                }
+            }
+
+            if (slotLivre !== -1) {
+                await supabase.from('mochila').insert([
+                    { usuario_id, objeto_id: itemGanho.id, quantidade: quantidadeGanha, slot_index: slotLivre }
+                ]);
+            } else {
+                return res.json({ dropObtido: null, mensagem: 'Mochila Cheia!' });
+            }
+        }
+
+        res.json({ dropObtido: itemGanho, quantidade: quantidadeGanha });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao processar drop.' });
+    }
+});
+
 // Porta dinâmica (3000 para local ou a fornecida pelo Render/servidor)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

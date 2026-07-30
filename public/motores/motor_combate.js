@@ -68,6 +68,22 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
         
         // Dá EXP e salva o herói
         concederRecompensas(monstro, treinoSelecionado);
+
+        // Processa e verifica Drop de Itens
+    const heroiAtual = JSON.parse(localStorage.getItem('heroi'));
+    fetch('/api/combate/drop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario_id: heroiAtual.id, monstro_id: monstro.id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.dropObtido) {
+            elLog.innerHTML += `<br><span style="color:#ffff00;">🎁 Dropou: ${data.quantidade}x ${data.dropObtido.nome}!</span>`;
+        }
+    });
+
+
         agendarRenascerMonstro(monstro, elLog);
         return;
     }
