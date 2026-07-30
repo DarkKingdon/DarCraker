@@ -58,6 +58,7 @@ function recalcularStatusHeroi(heroi) {
     heroi.defesa_minima = heroi.protecao;
     heroi.defesa_maxima = heroi.protecao * 2;
     heroi.vida_maxima = 10 + (heroi.vitalidade * 5);
+    heroi.mana_maxima = 10 + (heroi.inteligencia * 5);
 }
 
 async function salvarNoServidor(heroi) {
