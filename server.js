@@ -41,7 +41,39 @@ app.post('/api/cadastro', async (req, res) => {
         const { data, error } = await supabase
             .from('usuarios')
             .insert([
-                { nome_heroi, email, senha: senhaHash, vida_atual: 10, vida_maxima: 10 }
+                { 
+                    nome_heroi, 
+                    email, 
+                    senha: senhaHash, 
+                    nivel: 1,
+                    exp_atual: 0,
+                    exp_next_nivel: 10,
+                    vida_atual: 10,
+                    vida_maxima: 10,
+                    mana_atual: 15,
+                    mana_maxima: 15,
+
+                    forca: 1,
+                    exp_atual_forca: 0,
+                    exp_next_nivel_forca: 10,
+
+                    protecao: 1,
+                    exp_atual_protecao: 0,
+                    exp_next_nivel_protecao: 10,
+
+                    vitalidade: 1,
+                    exp_atual_vitalidade: 0,
+                    exp_next_nivel_vitalidade: 10,
+
+                    inteligencia: 1,
+                    exp_atual_inteligencia: 0,
+                    exp_next_nivel_inteligencia: 10,
+                    
+                    ataque_minimo: 1,
+                    ataque_maximo: 2,
+                    defesa_minima: 1,
+                    defesa_maxima: 2
+                }
             ])
             .select();
 
@@ -86,8 +118,34 @@ app.post('/api/login', async (req, res) => {
             usuario: {
                 id: usuario.id,
                 nome_heroi: usuario.nome_heroi,
+                nivel: usuario.nivel,
+                exp_atual: usuario.exp_atual,
+                exp_next_nivel: usuario.exp_next_nivel,
                 vida_atual: usuario.vida_atual,
-                vida_maxima: usuario.vida_maxima
+                vida_maxima: usuario.vida_maxima,
+                mana_atual: usuario.mana_atual,
+                mana_maxima: usuario.mana_maxima,
+
+                forca: usuario.forca ?? 1,
+                exp_atual_forca: usuario.exp_atual_forca ?? 0,
+                exp_next_nivel_forca: usuario.exp_next_nivel_forca ?? 10,
+
+                protecao: usuario.protecao ?? 1,
+                exp_atual_protecao: usuario.exp_atual_protecao ?? 0,
+                exp_next_nivel_protecao: usuario.exp_next_nivel_protecao ?? 10,
+
+                vitalidade: usuario.vitalidade ?? 1,
+                exp_atual_vitalidade: usuario.exp_atual_vitalidade ?? 0,
+                exp_next_nivel_vitalidade: usuario.exp_next_nivel_vitalidade ?? 10,
+
+                inteligencia: usuario.inteligencia ?? 1,
+                exp_atual_inteligencia: usuario.exp_atual_inteligencia ?? 0,
+                exp_next_nivel_inteligencia: usuario.exp_next_nivel_inteligencia ?? 10,
+
+                ataque_minimo: usuario.ataque_minimo ?? 1,
+                ataque_maximo: usuario.ataque_maximo ?? 2,
+                defesa_minima: usuario.defesa_minima ?? 1,
+                defesa_maxima: usuario.defesa_maxima ?? 2
             }
         });
     } catch (err) {

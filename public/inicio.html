@@ -22,43 +22,6 @@
             gap: 10px;
         }
 
-        /* 🔵 RETÂNGULO AZUL (Menu Superior) */
-        .top-bar {
-            border: 2px solid #00a2ff;
-            background-color: #121212;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 6px;
-        }
-
-        .btn-menu {
-            background-color: #1e1e1e;
-            color: #00ff88;
-            border: 1px solid #00ff88;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        .btn-menu:hover {
-            background-color: #00ff88;
-            color: #121212;
-        }
-
-        .btn-sair {
-            border-color: #f44336;
-            color: #f44336;
-        }
-
-        .btn-sair:hover {
-            background-color: #f44336;
-            color: #fff;
-        }
-
         /* ÁREA PRINCIPAL (Layout em 3 Colunas) */
         .main-container {
             display: grid;
@@ -66,97 +29,28 @@
             gap: 10px;
             flex: 1;
         }
-
-        /* 🟡 RETÂNGULOS AMARELOS (Painéis Laterais) */
-        .side-panel {
-            border: 2px solid #ffd700;
-            background-color: #121212;
-            padding: 10px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* 🔴 RETÂNGULO VERMELHO (Painel de Status do Herói) */
-        .status-box {
-            border: 2px solid #ff3333;
-            background-color: #1e1e1e;
-            padding: 15px;
-            border-radius: 6px;
-            display: block; /* Visível por padrão ao iniciar */
-        }
-
-        .status-box h3 {
-            font-size: 16px;
-            color: #ff3333;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-        }
-
-        .status-box p {
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        /* ⚪ RETÂNGULO BRANCO (Tela de Combate / Centro) */
-        .combat-screen {
-            border: 2px solid #ffffff;
-            background-color: #121212;
-            border-radius: 6px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
     </style>
 </head>
 <body>
 
-    <!-- 🔵 MENU SUPERIOR (AZUL) -->
-    <header class="top-bar">
-        <button id="btn-status" class="btn-menu">Status</button>
-        <button id="btn-sair" class="btn-menu btn-sair">Sair</button>
-    </header>
+    <!-- 🔵 MENU SUPERIOR (AZUL) - Gerado pelo modulo_menu_superior.js -->
+    <header id="header-menu"></header>
 
     <!-- ÁREA CENTRAL -->
     <main class="main-container">
 
-        <!-- 🟡 PAINEL ESQUERDO (AMARELO) -->
-        <aside class="side-panel">
-            <!-- 🔴 PAINEL DE STATUS (VERMELHO) -->
-            <div id="painel-status" class="status-box">
-                <h3>Status do Herói</h3>
-                <p><strong>Nome:</strong> <span id="heroi-nome">---</span></p>
-                <p><strong>Vida:</strong> <span id="heroi-vida">--/--</span></p>
-            </div>
-        </aside>
+        <!-- 🟡 PAINEL ESQUERDO (AMARELO + VERMELHO) - Gerado pelo modulo_menu_esquerdo.js -->
+        <aside id="painel-esquerdo"></aside>
 
-        <!-- ⚪ TELA DE COMBATE (BRANCO) -->
-        <section class="combat-screen">
-            <h2>⚔️ Tela de Combate</h2>
-            <p style="color: #aaa; margin-top: 10px;">Área pronta para o desenvolvimento dos confrontos!</p>
-        </section>
+        <!-- ⚪ TELA DE COMBATE (BRANCO) - Gerada pelo modulo_tela_de_combate.js -->
+        <section id="tela-combate"></section>
 
-        <!-- 🟡 PAINEL DIREITO (AMARELO - Reservado para Mochila/Outros) -->
-        <aside class="side-panel">
-            <!-- Reservado para o futuro -->
-        </aside>
+        <!-- 🟡 PAINEL DIREITO (AMARELO) - Gerado pelo modulo_menu_direito.js -->
+        <aside id="painel-direito"></aside>
 
     </main>
 
-    <!-- Importação do Módulo JavaScript -->
-    <script type="module">
-        import { carregarStatus, toggleStatus, sair } from './modulos/ui.js';
-
-        // Inicializa os dados do herói
-        carregarStatus();
-
-        // Configura os botões do menu superior
-        document.getElementById('btn-status').addEventListener('click', toggleStatus);
-        document.getElementById('btn-sair').addEventListener('click', sair);
-    </script>
+    <!-- Importa o motor principal (inicio.js) -->
+    <script type="module" src="./inicio.js"></script>
 </body>
 </html>
