@@ -131,6 +131,7 @@ async function abrirModalHunts() {
         }
     } catch (e) { console.log("Usando fallback de monstro local"); }
 
+    // Dentro da função abrirModalHunts(), ao renderizar os monstros:
     modal.innerHTML = `
         <div class="modal-hunts-content">
             <div class="modal-hunts-header">
@@ -138,15 +139,21 @@ async function abrirModalHunts() {
                 <button id="fechar-modal-hunts" style="background:none; border:none; color:#ff3333; font-weight:bold; cursor:pointer;">X</button>
             </div>
             <div class="lista-monstros">
-                ${monstros.map(m => `
-                    <div class="item-monstro" data-id="${m.id}">
-                        <img src="${m.imagem_url || '/img/poring.png'}" alt="${m.nome}" onerror="this.onerror=null; this.src='https://placehold.co/40x40/333/fff?text=Poring';">
-                        <div>
-                            <strong>${m.nome}</strong><br>
-                            <small style="color:#aaa;">Nível: ${m.nivel}</small>
+                ${monstros.map(m => {
+                    let imgSrc = m.imagem_url || 'poring.png';
+                    if (!imgSrc.startsWith('/img/') && !imgSrc.startsWith('img/')) {
+                        imgSrc = 'img/' + imgSrc.replace(/^\//, '');
+                    }
+                    return `
+                        <div class="item-monstro" data-id="${m.id}">
+                            <img src="${imgSrc}" alt="${m.nome}" onerror="this.onerror=null; this.src='https://placehold.co/40x40/333/fff?text=Poring';">
+                            <div>
+                                <strong>${m.nome}</strong><br>
+                                <small style="color:#aaa;">Nível: ${m.nivel}</small>
+                            </div>
                         </div>
-                    </div>
-                `).join('')}
+                    `;
+                }).join('')}
             </div>
         </div>
     `;

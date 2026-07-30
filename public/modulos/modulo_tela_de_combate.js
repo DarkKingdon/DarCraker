@@ -56,10 +56,18 @@ export function iniciarCombate(monstro) {
     const container = document.getElementById('tela-combate');
     if (!container) return;
 
-    // Resetar vida APENAS do monstro no início da luta
+    // Resetar vida do monstro
     monstro.vida_atual = monstro.vida_maxima;
-
     const modoAuto = getModoAuto();
+
+    // 🎯 CORREÇÃO DO CAMINHO DA IMAGEM DO MONSTRO:
+    let monstroImg = monstro.imagem_url || 'poring.png';
+    
+    // Se não tiver "img/" no caminho, nós adicionamos!
+    if (!monstroImg.startsWith('/img/') && !monstroImg.startsWith('img/')) {
+        // Remove barras iniciais soltas para evitar "//"
+        monstroImg = 'img/' + monstroImg.replace(/^\//, '');
+    }
 
     container.className = 'combat-screen';
     container.innerHTML = `
@@ -68,7 +76,7 @@ export function iniciarCombate(monstro) {
         <div class="arena">
             <!-- Herói -->
             <div class="combatente">
-                <img src="/img/heroi.png" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Heroi';" alt="Herói">
+                <img src="img/heroi.png" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Heroi';" alt="Herói">
                 <div><strong>${heroi.nome_heroi}</strong></div>
                 <div class="bar-hp-bg"><div id="hp-heroi" class="bar-hp-fill" style="width: ${Math.max(0, (heroi.vida_atual / heroi.vida_maxima) * 100)}%;"></div></div>
                 <div class="bar-mp-bg"><div id="mp-heroi" class="bar-mp-fill" style="width: ${Math.max(0, (heroi.mana_atual / heroi.mana_maxima) * 100)}%;"></div></div>
@@ -78,7 +86,7 @@ export function iniciarCombate(monstro) {
 
             <!-- Monstro -->
             <div class="combatente">
-                <img src="${monstro.imagem_url || '/img/poring.png'}" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Poring';" alt="${monstro.nome}">
+                <img src="${monstroImg}" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Poring';" alt="${monstro.nome}">
                 <div><strong>${monstro.nome}</strong></div>
                 <div class="bar-hp-bg"><div id="hp-monstro" class="bar-hp-fill" style="width: 100%;"></div></div>
                 <div class="bar-mp-bg"><div id="mp-monstro" class="bar-mp-fill" style="width: 100%;"></div></div>
