@@ -1,11 +1,11 @@
-// public/modulos/modais/modal_descricao_objeto_mochila.js
-import { abrirModalMochila } from './modal_mochila.js';
+// public/modulos/modais/modal_descricao_objeto_bau.js
+import { abrirModalBau } from './modal_bau.js';
 
-function aplicarEstilosDescricaoItem() {
-    if (document.getElementById('estilo-modal-descricao-item')) return;
+function aplicarEstilosDescricaoBau() {
+    if (document.getElementById('estilo-modal-descricao-bau')) return;
 
     const style = document.createElement('style');
-    style.id = 'estilo-modal-descricao-item';
+    style.id = 'estilo-modal-descricao-bau';
     style.innerHTML = `
         .modal-descricao-overlay {
             position: fixed;
@@ -91,7 +91,7 @@ function aplicarEstilosDescricaoItem() {
             align-items: center;
         }
 
-        .input-qtd-guardar {
+        .input-qtd-retirar {
             width: 60px;
             padding: 6px;
             background: #121212;
@@ -101,10 +101,10 @@ function aplicarEstilosDescricaoItem() {
             text-align: center;
         }
 
-        .btn-guardar {
+        .btn-retirar {
             flex: 1;
-            background: #ffb700;
-            color: #121212;
+            background: #00a2ff;
+            color: #fff;
             border: none;
             padding: 6px 12px;
             font-weight: bold;
@@ -113,22 +113,22 @@ function aplicarEstilosDescricaoItem() {
             transition: 0.2s;
         }
 
-        .btn-guardar:hover {
-            background: #e0a200;
+        .btn-retirar:hover {
+            background: #0088cc;
         }
     `;
     document.head.appendChild(style);
 }
 
-export function abrirModalDescricaoItem(itemMochila, imgSrc) {
-    aplicarEstilosDescricaoItem();
+export function abrirModalDescricaoItemBau(itemBau, imgSrc) {
+    aplicarEstilosDescricaoBau();
 
-    const objeto = itemMochila.objetos || {};
+    const objeto = itemBau.objetos || {};
 
-    let modal = document.getElementById('modal-descricao-item');
+    let modal = document.getElementById('modal-descricao-item-bau');
     if (!modal) {
         modal = document.createElement('div');
-        modal.id = 'modal-descricao-item';
+        modal.id = 'modal-descricao-item-bau';
         modal.className = 'modal-descricao-overlay';
         document.body.appendChild(modal);
     }
@@ -137,14 +137,14 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
         <div class="modal-descricao-content">
             <div class="modal-descricao-header">
                 <h4>${objeto.nome || 'Item'}</h4>
-                <button id="fechar-modal-descricao" style="background:none; border:none; color:#ff3333; font-weight:bold; cursor:pointer; font-size:16px;">X</button>
+                <button id="fechar-modal-descricao-bau" style="background:none; border:none; color:#ff3333; font-weight:bold; cursor:pointer; font-size:16px;">X</button>
             </div>
             <div class="modal-descricao-body">
                 <div class="modal-descricao-top">
                     <img src="${imgSrc}" class="modal-descricao-img" onerror="this.onerror=null; this.src='https://placehold.co/50x50/333/fff?text=Item';" alt="${objeto.nome}">
                     <div class="modal-descricao-info">
                         <div><strong>Tipo:</strong> ${objeto.tipo || 'N/A'}</div>
-                        <div><strong>Qtd Possuída:</strong> ${itemMochila.quantidade}</div>
+                        <div><strong>Qtd no Baú:</strong> ${itemBau.quantidade}</div>
                         <div><strong>Venda:</strong> ${objeto.valor_de_venda ?? 0}</div>
                     </div>
                 </div>
@@ -152,10 +152,10 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
                     ${objeto.descricao || 'Sem descrição disponível.'}
                 </div>
                 
-                <!-- Área para guardar no baú -->
+                <!-- Área para retirar para a mochila -->
                 <div class="modal-descricao-acoes">
-                    <input type="number" id="qtd-guardar" class="input-qtd-guardar" value="1" min="1" max="${itemMochila.quantidade}">
-                    <button id="btn-guardar-bau" class="btn-guardar">Guardar no Baú</button>
+                    <input type="number" id="qtd-retirar" class="input-qtd-retirar" value="1" min="1" max="${itemBau.quantidade}">
+                    <button id="btn-retirar-mochila" class="btn-retirar">Retirar para Mochila</button>
                 </div>
             </div>
         </div>
@@ -163,23 +163,23 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
 
     modal.style.display = 'flex';
 
-    // Ação do Botão Guardar
-    document.getElementById('btn-guardar-bau').onclick = async () => {
+    // Ação do Botão Retirar
+    document.getElementById('btn-retirar-mochila').onclick = async () => {
         const heroi = JSON.parse(localStorage.getItem('heroi'));
-        const qtdInput = parseInt(document.getElementById('qtd-guardar').value);
+        const qtdInput = parseInt(document.getElementById('qtd-retirar').value);
 
-        if (!qtdInput || qtdInput <= 0 || qtdInput > itemMochila.quantidade) {
+        if (!qtdInput || qtdInput <= 0 || qtdInput > itemBau.quantidade) {
             alert('Quantidade inválida!');
             return;
         }
 
         try {
-            const res = await fetch('/api/bau/guardar', {
+            const res = await fetch('/api/bau/retirar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     usuario_id: heroi.id,
-                    mochila_id: itemMochila.id,
+                    bau_id: itemBau.id,
                     objeto_id: objeto.id,
                     quantidade: qtdInput
                 })
@@ -188,17 +188,17 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
             const data = await res.json();
             if (res.ok) {
                 modal.style.display = 'none';
-                // Atualiza o modal da mochila para refletir a nova quantidade
-                abrirModalMochila();
+                // Atualiza o modal do baú para refletir a remoção/redução do item
+                abrirModalBau();
             } else {
-                alert(data.error || 'Erro ao guardar item no baú.');
+                alert(data.error || 'Erro ao retirar item do baú.');
             }
         } catch (err) {
             console.error('Erro ao conectar com servidor:', err);
         }
     };
 
-    const btnFechar = document.getElementById('fechar-modal-descricao');
+    const btnFechar = document.getElementById('fechar-modal-descricao-bau');
     if (btnFechar) {
         btnFechar.onclick = () => modal.style.display = 'none';
     }

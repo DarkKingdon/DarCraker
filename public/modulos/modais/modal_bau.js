@@ -1,15 +1,14 @@
-// public/modulos/modais/modal_mochila.js
+// public/modulos/modais/modal_bau.js
 
-import { abrirModalDescricaoItem } from './modal_descricao_objeto_mochila.js';
+import { abrirModalDescricaoItemBau } from './modal_descricao_objeto_bau.js';
 
-function aplicarEstilosMochila() {
-    if (document.getElementById('estilo-modal-mochila')) return;
+function aplicarEstilosBau() {
+    if (document.getElementById('estilo-modal-bau')) return;
 
     const style = document.createElement('style');
-    style.id = 'estilo-modal-mochila';
+    style.id = 'estilo-modal-bau';
     style.innerHTML = `
-        /* Modal Mochila */
-        .modal-mochila-overlay {
+        .modal-bau-overlay {
             position: fixed; 
             top: 0; 
             left: 0; 
@@ -22,23 +21,26 @@ function aplicarEstilosMochila() {
             z-index: 9999;
         }
 
-        .modal-mochila-content {
+        .modal-bau-content {
             background-color: #181818; 
-            border: 2px solid #00a2ff;
+            border: 2px solid #ffb700;
             border-radius: 8px; 
-            width: 340px; 
+            width: 360px; 
             padding: 15px; 
             color: #fff;
         }
 
-        .grid-mochila {
+        .grid-bau {
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
             gap: 8px; 
             margin-top: 15px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
-        .slot-mochila {
+        .slot-bau {
             width: 40px; 
             height: 40px; 
             background-color: #242424;
@@ -50,23 +52,23 @@ function aplicarEstilosMochila() {
             align-items: center;
         }
 
-        .slot-mochila.com-item {
+        .slot-bau.com-item {
             cursor: pointer;
             transition: border-color 0.2s, background-color 0.2s;
         }
 
-        .slot-mochila.com-item:hover {
-            border-color: #00a2ff;
+        .slot-bau.com-item:hover {
+            border-color: #ffb700;
             background-color: #2e2e2e;
         }
 
-        .slot-mochila img { 
+        .slot-bau img { 
             width: 32px; 
             height: 32px; 
             object-fit: contain; 
         }
 
-        .slot-mochila .qtd-badge {
+        .slot-bau .qtd-badge {
             position: absolute; 
             bottom: 2px; 
             right: 2px;
@@ -81,34 +83,32 @@ function aplicarEstilosMochila() {
     document.head.appendChild(style);
 }
 
-export async function abrirModalMochila() {
-    aplicarEstilosMochila();
+export async function abrirModalBau() {
+    aplicarEstilosBau();
 
     const heroi = JSON.parse(localStorage.getItem('heroi'));
     if (!heroi) return;
 
-    let modal = document.getElementById('modal-mochila');
+    let modal = document.getElementById('modal-bau');
     if (!modal) {
         modal = document.createElement('div');
-        modal.id = 'modal-mochila';
-        modal.className = 'modal-mochila-overlay';
+        modal.id = 'modal-bau';
+        modal.className = 'modal-bau-overlay';
         document.body.appendChild(modal);
     }
 
-    let itensMochila = [];
+    let itensBau = [];
     try {
-        const res = await fetch(`/api/mochila/${heroi.id}`);
-        if (res.ok) itensMochila = await res.json();
+        const res = await fetch(`/api/bau/${heroi.id}`);
+        if (res.ok) itensBau = await res.json();
     } catch (e) { 
-        console.error('Erro ao carregar mochila:', e); 
+        console.error('Erro ao carregar baú:', e); 
     }
 
-    // Renderiza 20 slots de forma sequencial e organizada
+    // Renderiza 40 slots alinhados de forma organizada
     let slotsHtml = '';
-    for (let i = 0; i < 20; i++) {
-        // Pega o item pelo índice da lista para garantir alinhamento à esquerda
-        const itemNoSlot = itensMochila[i]; 
-
+    for (let i = 0; i < 40; i++) {
+        const itemNoSlot = itensBau[i];
         if (itemNoSlot && itemNoSlot.objetos) {
             let imgSrc = itemNoSlot.objetos.imagem_url || 'jellopy.png';
             if (!imgSrc.startsWith('/img/objetos/loots/') && !imgSrc.startsWith('img/objetos/loots/')) {
@@ -116,23 +116,23 @@ export async function abrirModalMochila() {
             }
 
             slotsHtml += `
-                <div class="slot-mochila com-item" data-index="${i}">
+                <div class="slot-bau com-item" data-index="${i}">
                     <img src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/32x32/333/fff?text=Item';" alt="${itemNoSlot.objetos.nome}">
                     <span class="qtd-badge">${itemNoSlot.quantidade}</span>
                 </div>
             `;
         } else {
-            slotsHtml += `<div class="slot-mochila"></div>`;
+            slotsHtml += `<div class="slot-bau"></div>`;
         }
     }
 
     modal.innerHTML = `
-        <div class="modal-mochila-content">
+        <div class="modal-bau-content">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:8px;">
-                <h3>🎒 Mochila</h3>
-                <button id="fechar-modal-mochila" style="background:none; border:none; color:#ff3333; font-weight:bold; cursor:pointer;">X</button>
+                <h3>📦 Baú (${itensBau.length}/40)</h3>
+                <button id="fechar-modal-bau" style="background:none; border:none; color:#ff3333; font-weight:bold; cursor:pointer;">X</button>
             </div>
-            <div class="grid-mochila">
+            <div class="grid-bau">
                 ${slotsHtml}
             </div>
         </div>
@@ -140,26 +140,25 @@ export async function abrirModalMochila() {
 
     modal.style.display = 'flex';
 
-    // Adiciona evento de clique nos slots com itens
-    const slotsComItem = modal.querySelectorAll('.slot-mochila.com-item');
+    // Adiciona evento de clique para abrir o modal de descrição do item do baú
+    const slotsComItem = modal.querySelectorAll('.slot-bau.com-item');
     slotsComItem.forEach(slotEl => {
         slotEl.onclick = () => {
             const index = parseInt(slotEl.getAttribute('data-index'));
-            const itemClicado = itensMochila[index];
-            
+            const itemClicado = itensBau[index];
+
             if (itemClicado && itemClicado.objetos) {
                 let imgSrc = itemClicado.objetos.imagem_url || 'jellopy.png';
                 if (!imgSrc.startsWith('/img/objetos/loots/') && !imgSrc.startsWith('img/objetos/loots/')) {
                     imgSrc = 'img/objetos/loots/' + imgSrc;
                 }
-                
-                abrirModalDescricaoItem(itemClicado, imgSrc);
+
+                abrirModalDescricaoItemBau(itemClicado, imgSrc);
             }
         };
     });
 
-    // Evento para fechar o modal
-    const btnFechar = document.getElementById('fechar-modal-mochila');
+    const btnFechar = document.getElementById('fechar-modal-bau');
     if (btnFechar) {
         btnFechar.onclick = () => modal.style.display = 'none';
     }

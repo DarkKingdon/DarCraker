@@ -96,32 +96,35 @@ export function abrirModalFinalDoCombate(monstro, treinoSelecionado, dropInfo) {
         document.body.appendChild(modal);
     }
 
-    // Processamento das informações de EXP
     const expNivel = monstro.recompensa_exp_atual || 1;
     const campoExpTreino = `recompensa_exp_atual_${treinoSelecionado}`;
     const expTreino = monstro[campoExpTreino] || 1;
     const nomeTreino = treinoSelecionado ? treinoSelecionado.toUpperCase() : 'TREINO';
 
-    // Processamento da imagem e informações do Loot (Drop)
+    // Aceita tanto a lista de dropsObtidos (novo) quanto dropObtido (antigo para retrocompatibilidade)
+    const listaDrops = dropInfo?.dropsObtidos || (dropInfo?.dropObtido ? [{ item: dropInfo.dropObtido, quantidade: dropInfo.quantidade }] : []);
+
     let lootHtml = `<span style="color: #777;">Nenhum item obtido.</span>`;
-    
-    if (dropInfo && dropInfo.dropObtido) {
-        const item = dropInfo.dropObtido;
-        const quantidade = dropInfo.quantidade || 1;
 
-        let imgSrc = item.imagem_url || 'jellopy.png';
-        if (!imgSrc.startsWith('/img/objetos/loots/') && !imgSrc.startsWith('img/objetos/loots/')) {
-            imgSrc = 'img/objetos/loots/' + imgSrc.replace(/^\//, '');
-        }
+    if (listaDrops.length > 0) {
+        lootHtml = listaDrops.map(drop => {
+            const item = drop.item;
+            const quantidade = drop.quantidade || 1;
 
-        lootHtml = `
-            <div class="item-loot-container">
-                <img class="item-loot-img" src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/25x25/333/fff?text=Loot';" alt="${item.nome}">
-                <div>
-                    <strong>${quantidade}x</strong> ${item.nome}
+            let imgSrc = item.imagem_url || 'jellopy.png';
+            if (!imgSrc.startsWith('/img/objetos/loots/') && !imgSrc.startsWith('img/objetos/loots/')) {
+                imgSrc = 'img/objetos/loots/' + imgSrc.replace(/^\//, '');
+            }
+
+            return `
+                <div class="item-loot-container" style="margin-bottom: 5px;">
+                    <img class="item-loot-img" src="${imgSrc}" onerror="this.onerror=null; this.src='https://placehold.co/25x25/333/fff?text=Loot';" alt="${item.nome}">
+                    <div>
+                        <strong>${quantidade}x</strong> ${item.nome}
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        }).join('');
     }
 
     modal.innerHTML = `
