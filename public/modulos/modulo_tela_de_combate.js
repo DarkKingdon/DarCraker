@@ -63,10 +63,10 @@ export function iniciarCombate(monstro) {
     // 🎯 CORREÇÃO DO CAMINHO DA IMAGEM DO MONSTRO:
     let monstroImg = monstro.imagem_url || 'poring.png';
     
-    // Se não tiver "img/" no caminho, nós adicionamos!
-    if (!monstroImg.startsWith('/img/') && !monstroImg.startsWith('img/')) {
+    // Se não tiver "img/monstros/" no caminho, nós adicionamos!
+    if (!monstroImg.startsWith('/img/monstros/') && !monstroImg.startsWith('img/monstros/')) {
         // Remove barras iniciais soltas para evitar "//"
-        monstroImg = 'img/' + monstroImg.replace(/^\//, '');
+        monstroImg = 'img/monstros/' + monstroImg.replace(/^\//, '');
     }
 
     container.className = 'combat-screen';

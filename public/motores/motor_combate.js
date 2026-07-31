@@ -2,6 +2,7 @@
 import { concederRecompensas } from './motor_status_heroi.js';
 import { iniciarCombate } from '../modulos/modulo_tela_de_combate.js';
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
+import { abrirModalFinalDoCombate } from '../modulos/modais/modal_final_do_combate.js';
 
 let combatendo = false;
 let modoAuto = false;
@@ -64,12 +65,12 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
 
     // Se o monstro morrer com este golpe
     if (monstro.vida_atual <= 0) {
-        elLog.innerHTML = `<span style="color:#00ff88;">Você deu <strong>${danoHeroi}</strong> de dano e derrotou o ${monstro.nome}!</span>`;
-        
-        // Dá EXP e salva o herói
-        concederRecompensas(monstro, treinoSelecionado);
+    elLog.innerHTML = `<span style="color:#00ff88;">Você deu <strong>${danoHeroi}</strong> de dano e derrotou o ${monstro.nome}!</span>`;
+    
+    // Concede a XP
+    concederRecompensas(monstro, treinoSelecionado);
 
-        // Processa e verifica Drop de Itens
+    // Processa o Drop e abre o Modal
     const heroiAtual = JSON.parse(localStorage.getItem('heroi'));
     fetch('/api/combate/drop', {
         method: 'POST',
@@ -78,15 +79,13 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
     })
     .then(res => res.json())
     .then(data => {
-        if (data.dropObtido) {
-            elLog.innerHTML += `<br><span style="color:#ffff00;">🎁 Dropou: ${data.quantidade}x ${data.dropObtido.nome}!</span>`;
-        }
+        // Exibe o modal final com as recompensas e os drops
+        abrirModalFinalDoCombate(monstro, treinoSelecionado, data);
     });
 
-
-        agendarRenascerMonstro(monstro, elLog);
-        return;
-    }
+    agendarRenascerMonstro(monstro, elLog);
+    return;
+}
 
     elLog.innerHTML = `Você deu <strong>${danoHeroi}</strong> de dano. Aguarde a resposta do ${monstro.nome}...`;
 
