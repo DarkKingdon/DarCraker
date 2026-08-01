@@ -28,7 +28,7 @@ function aplicarEstilosModalFinal() {
             font-size: 18px;
             font-weight: bold;
             color: #00ff88;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #e0e0e0;
             padding-bottom: 8px;
             margin-bottom: 12px;
         }

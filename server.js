@@ -52,6 +52,9 @@ app.use('/api/heroi', rotaSalvarEAtualizarStatusDoHeroi);
 const rotaDbBuscarListaDeMonstros = require('./rotas/rota_db_buscar_lista_de_monstros')(supabase);
 app.use('/api/monstros', rotaDbBuscarListaDeMonstros);
 
+const rotaMarket = require('./rotas/rota_market')(supabase);
+app.use('/api/market', rotaMarket);
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
