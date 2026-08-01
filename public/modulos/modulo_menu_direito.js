@@ -12,7 +12,7 @@ function aplicarEstilosDireito() {
         /* 🟡 RETÂNGULO AMARELO (Painel Direito) */
         .side-panel-right {
             border: 2px solid #ffd700;
-            background-color: #121212;
+            background-color: #22222296;
             padding: 10px;
             border-radius: 6px;
             display: flex;

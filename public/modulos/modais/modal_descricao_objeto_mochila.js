@@ -1,5 +1,6 @@
 // public/modulos/modais/modal_descricao_objeto_mochila.js
 import { abrirModalMochila } from './modal_mochila.js';
+import { carregarStatus } from '../modulo_menu_esquerdo.js';
 
 function aplicarEstilosDescricaoItem() {
     if (document.getElementById('estilo-modal-descricao-item')) return;
@@ -116,6 +117,23 @@ function aplicarEstilosDescricaoItem() {
         .btn-guardar:hover {
             background: #e0a200;
         }
+
+        .btn-consumir {
+            width: 100%;
+            background: #00ff88;
+            color: #121212;
+            border: none;
+            padding: 8px 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-consumir:hover {
+            background: #00cc6d;
+        }
     `;
     document.head.appendChild(style);
 }
@@ -124,6 +142,9 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
     aplicarEstilosDescricaoItem();
 
     const objeto = itemMochila.objetos || {};
+    
+    // Comparação insensível a maiúsculas/minúsculas
+    const ehConsumivel = objeto.tipo && objeto.tipo.toLowerCase() === 'consumivel';
 
     let modal = document.getElementById('modal-descricao-item');
     if (!modal) {
@@ -152,6 +173,11 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
                     ${objeto.descricao || 'Sem descrição disponível.'}
                 </div>
                 
+                ${ehConsumivel ? `
+                    <!-- Botão de Consumir para Itens Consumíveis -->
+                    <button id="btn-consumir-item" class="btn-consumir">🍎 Consumir</button>
+                ` : ''}
+
                 <!-- Área para guardar no baú -->
                 <div class="modal-descricao-acoes">
                     <input type="number" id="qtd-guardar" class="input-qtd-guardar" value="1" min="1" max="${itemMochila.quantidade}">
@@ -162,6 +188,41 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
     `;
 
     modal.style.display = 'flex';
+
+    // Ação do Botão Consumir (somente para consumíveis)
+    if (ehConsumivel) {
+        document.getElementById('btn-consumir-item').onclick = async () => {
+            const heroi = JSON.parse(localStorage.getItem('heroi'));
+
+            try {
+                const res = await fetch('/api/mochila/consumir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuario_id: heroi.id,
+                        mochila_id: itemMochila.id
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    if (data.usuario) {
+                        localStorage.setItem('heroi', JSON.stringify(data.usuario));
+                        carregarStatus();
+                    }
+
+                    alert(data.message);
+                    modal.style.display = 'none';
+
+                    abrirModalMochila();
+                } else {
+                    alert(data.error || 'Erro ao consumir item.');
+                }
+            } catch (err) {
+                console.error('Erro ao conectar com servidor:', err);
+            }
+        };
+    }
 
     // Ação do Botão Guardar
     document.getElementById('btn-guardar-bau').onclick = async () => {
@@ -188,7 +249,6 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
             const data = await res.json();
             if (res.ok) {
                 modal.style.display = 'none';
-                // Atualiza o modal da mochila para refletir a nova quantidade
                 abrirModalMochila();
             } else {
                 alert(data.error || 'Erro ao guardar item no baú.');

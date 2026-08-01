@@ -10,7 +10,7 @@ function aplicarEstilosCombate() {
     style.id = 'estilo-tela-combate';
     style.innerHTML = `
         .combat-screen {
-            border: 2px solid #ffffff; background-color: #121212;
+            border: 2px solid #ffffff; background-color: #22222296;
             border-radius: 6px; padding: 20px; display: flex;
             flex-direction: column; align-items: center; justify-content: space-between; height: 100%;
         }

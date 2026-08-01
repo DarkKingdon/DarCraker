@@ -22,6 +22,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
     }
 });
 
+// ==========================================
+// IMPORTANDO E REGISTRANDO AS ROTAS SEPARADAS
+// ==========================================
+const rotaConsumirMaca = require('./rotas/rota_consumir_maca')(supabase);
+app.use('/api/mochila', rotaConsumirMaca); 
+// Note que agora a rota POST para '/api/mochila/consumir' fica ativa automaticamente!
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -502,6 +509,8 @@ app.post('/api/bau/retirar', async (req, res) => {
         res.status(500).json({ error: 'Erro ao retirar item do baú.' });
     }
 });
+
+
 
 // Porta dinâmica (3000 para local ou a fornecida pelo Render/servidor)
 const PORT = process.env.PORT || 3000;
