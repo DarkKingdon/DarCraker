@@ -70,24 +70,24 @@
             display: block;
         }
 
-        .btn-cadastrar {
+        .btn-login {
             background: #ff9800;
             color: #121212;
         }
 
-        .btn-cadastrar:hover {
+        .btn-login:hover {
             background: #e68a00;
             transform: scale(1.02);
         }
 
-        .btn-download {
-            background: rgba(0, 150, 136, 0.85);
-            color: #fff;
-            border-color: #00bfa5;
+        .btn-cadastrar {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border-color: #ff9800;
         }
 
-        .btn-download:hover {
-            background: #00bfa5;
+        .btn-cadastrar:hover {
+            background: rgba(255, 152, 0, 0.4);
             transform: scale(1.02);
         }
 
@@ -147,7 +147,7 @@
         .posicao-top2 { color: #c0c0c0; font-weight: bold; }
         .posicao-top3 { color: #cd7f32; font-weight: bold; }
 
-        /* 🔲 MODAL DE CADASTRO (FICA NO CENTRO SOBREPOSTO) */
+        /* 🔲 MODAIS (LOGIN E CADASTRO) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -159,7 +159,7 @@
             z-index: 999;
         }
 
-        .card-cadastro { 
+        .card-modal { 
             background: rgba(30, 30, 30, 0.95);
             backdrop-filter: blur(8px);
             padding: 25px; 
@@ -201,10 +201,10 @@
     <!-- 📐 ESTRUTURA PRINCIPAL DA PÁGINA -->
     <main class="main-layout">
 
-        <!-- 👈 BOTOES DO LADO ESQUERDO -->
+        <!-- 👈 BOTÕES DO LADO ESQUERDO -->
         <aside class="painel-esquerdo">
-            <button class="btn-acao btn-cadastrar" onclick="abrirModalCadastro()">Registrar / Cadastrar</button>
-            <a href="https://www.mediafire.com/file/2jdfb34sl3h1wxh/DarCraker_RPG_Setup_1.0.2.exe/file" target="_blank" class="btn-acao btn-download"> baixar Jogo (Mediafire)</a>
+            <button class="btn-acao btn-login" onclick="abrirModal('modal-login')">Login</button>
+            <button class="btn-acao btn-cadastrar" onclick="abrirModal('modal-cadastro')">Registrar / Cadastrar</button>
         </aside>
 
         <!-- ⚪ CONTAINER EM BRANCO NO CENTRO -->
@@ -225,10 +225,31 @@
 
     </main>
 
+    <!-- 🔲 MODAL DE LOGIN (OCULTO POR PADRÃO) -->
+    <div id="modal-login" class="modal-overlay" style="display: none;">
+        <div class="card-modal">
+            <button class="btn-fechar-modal" onclick="fecharModal('modal-login')">✖</button>
+            <h2 style="text-align: center; color: #ff9800; margin-bottom: 15px;">DarCracker - Login</h2>
+            
+            <div id="msg-login" class="msg"></div>
+            
+            <div class="form-group">
+                <label>E-mail:</label>
+                <input type="email" id="login-email">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="login-senha">
+            </div>
+            
+            <button class="btn-acao btn-login" onclick="fazerLogin()">Entrar</button>
+        </div>
+    </div>
+
     <!-- 🔲 MODAL DE CADASTRO (OCULTO POR PADRÃO) -->
     <div id="modal-cadastro" class="modal-overlay" style="display: none;">
-        <div class="card-cadastro">
-            <button class="btn-fechar-modal" onclick="fecharModalCadastro()">✖</button>
+        <div class="card-modal">
+            <button class="btn-fechar-modal" onclick="fecharModal('modal-cadastro')">✖</button>
             <h2 style="text-align: center; color: #ff9800; margin-bottom: 15px;">Criar Herói</h2>
             
             <div id="msg-cadastro" class="msg"></div>
@@ -246,7 +267,7 @@
                 <input type="password" id="cad-senha">
             </div>
             
-            <button class="btn-acao btn-cadastrar" onclick="fazerCadastro()">Cadastrar</button>
+            <button class="btn-acao btn-login" onclick="fazerCadastro()">Cadastrar</button>
         </div>
     </div>
 
@@ -255,13 +276,13 @@
         ? 'http://localhost:3000'
         : 'https://darcraker.onrender.com';
 
-    // 🔄 Função para abrir/fechar o Modal de Cadastro
-    function abrirModalCadastro() {
-        document.getElementById('modal-cadastro').style.display = 'flex';
+    // 🔄 Funções para abrir/fechar os Modais
+    function abrirModal(idModal) {
+        document.getElementById(idModal).style.display = 'flex';
     }
 
-    function fecharModalCadastro() {
-        document.getElementById('modal-cadastro').style.display = 'none';
+    function fecharModal(idModal) {
+        document.getElementById(idModal).style.display = 'none';
     }
 
     // 🏆 Carregar o Ranking Lateral na inicialização
@@ -312,6 +333,28 @@
         }
     }
 
+    // 🔑 Realizar Login do Herói
+    async function fazerLogin() {
+        const email = document.getElementById('login-email').value;
+        const senha = document.getElementById('login-senha').value;
+        const msg = document.getElementById('msg-login');
+
+        const res = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem('heroi', JSON.stringify(data.usuario));
+            window.location.href = 'inicio.html';
+        } else {
+            msg.className = 'msg erro';
+            msg.innerText = data.error || 'Erro ao fazer login';
+        }
+    }
+
     // 📝 Realizar Cadastro do Herói
     async function fazerCadastro() {
         const nome_heroi = document.getElementById('cad-nome').value;
@@ -330,9 +373,10 @@
             msg.className = 'msg sucesso';
             msg.innerText = 'Herói cadastrado com sucesso!';
             setTimeout(() => {
-                fecharModalCadastro();
-                carregarRanking(); // Atualiza o ranking para mostrar o novo herói
-            }, 1500);
+                fecharModal('modal-cadastro');
+                carregarRanking();
+                abrirModal('modal-login'); // Já abre o login após cadastrar
+            }, 1200);
         } else {
             msg.className = 'msg erro';
             msg.innerText = data.error || 'Erro ao cadastrar';
