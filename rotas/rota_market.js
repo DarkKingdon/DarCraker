@@ -4,37 +4,44 @@ module.exports = (supabase) => {
     const router = express.Router();
 
     // 1. BUSCAR OFERTAS DO MERCADO (Aba 1 - Comprar)
-    router.get('/ofertas', async (req, res) => {
-        try {
-            const { tipo } = req.query;
+router.get('/ofertas', async (req, res) => {
+    try {
+        const { tipo, objeto_id } = req.query;
 
-            const { data, error } = await supabase
-                .from('market')
-                .select(`
-                    id,
-                    vendedor_id,
-                    objeto_id,
-                    quantidade,
-                    preco_unitario,
-                    criado_em,
-                    vendedor:usuarios!vendedor_id (id, nome_heroi),
-                    objeto:objetos!objeto_id (id, nome, imagem_url, tipo)
-                `)
-                .order('criado_em', { ascending: false });
+        const { data, error } = await supabase
+            .from('market')
+            .select(`
+                id,
+                vendedor_id,
+                objeto_id,
+                quantidade,
+                preco_unitario,
+                criado_em,
+                vendedor:usuarios!vendedor_id (id, nome_heroi),
+                objeto:objetos!objeto_id (id, nome, imagem_url, tipo)
+            `)
+            .order('criado_em', { ascending: false });
 
-            if (error) throw error;
+        if (error) throw error;
 
-            let resultados = data || [];
-            if (tipo && tipo !== 'todos') {
-                resultados = resultados.filter(item => item.objeto && item.objeto.tipo === tipo);
-            }
+        let resultados = data || [];
 
-            res.json(resultados);
-        } catch (err) {
-            console.error('Erro ao buscar ofertas:', err);
-            res.status(500).json({ error: 'Erro ao carregar mercado.' });
+        // Filtro por tipo
+        if (tipo && tipo !== 'todos') {
+            resultados = resultados.filter(item => item.objeto && item.objeto.tipo === tipo);
         }
-    });
+
+        // Filtro por item específico (objeto_id)
+        if (objeto_id && objeto_id !== 'todos') {
+            resultados = resultados.filter(item => item.objeto && item.objeto.id === parseInt(objeto_id));
+        }
+
+        res.json(resultados);
+    } catch (err) {
+        console.error('Erro ao buscar ofertas:', err);
+        res.status(500).json({ error: 'Erro ao carregar mercado.' });
+    }
+});
 
     // 2. BUSCAR APENAS AS MINHAS OFERTAS (Aba 2 - Minhas Ofertas)
     router.get('/minhas-ofertas/:usuario_id', async (req, res) => {
@@ -112,12 +119,14 @@ module.exports = (supabase) => {
         }
     });
 
-    // 4. COMPRAR ITEM
+    // 4. COMPRAR ITEM (Com suporte a quantidade parcial)
     router.post('/comprar', async (req, res) => {
-        const { comprador_id, oferta_id } = req.body;
+        const { comprador_id, oferta_id, quantidade } = req.body;
 
-        if (!comprador_id || !oferta_id) {
-            return res.status(400).json({ error: 'Dados incompletos!' });
+        const qtdDesejada = parseInt(quantidade);
+
+        if (!comprador_id || !oferta_id || !qtdDesejada || qtdDesejada <= 0) {
+            return res.status(400).json({ error: 'Dados ou quantidade inválidos!' });
         }
 
         try {
@@ -136,14 +145,18 @@ module.exports = (supabase) => {
                 return res.status(400).json({ error: 'Você não pode comprar seu próprio item!' });
             }
 
-            const valorTotal = oferta.quantidade * oferta.preco_unitario;
+            if (qtdDesejada > oferta.quantidade) {
+                return res.status(400).json({ error: `Apenas ${oferta.quantidade} unidade(s) disponível(is) no anúncio.` });
+            }
 
-            // 2. Busca o item "Cents" (objeto_id = 2) na mochila do comprador[cite: 1, 3]
+            const valorTotal = qtdDesejada * oferta.preco_unitario;
+
+            // 2. Busca Cents (objeto_id = 2) na mochila do comprador[cite: 3]
             const { data: itemCentsComprador, error: errCentsComprador } = await supabase
                 .from('mochila')
                 .select('*')
                 .eq('usuario_id', comprador_id)
-                .eq('objeto_id', 2) // ID 2 é Cents[cite: 1, 3]
+                .eq('objeto_id', 2)
                 .single();
 
             if (errCentsComprador || !itemCentsComprador || itemCentsComprador.quantidade < valorTotal) {
@@ -160,7 +173,7 @@ module.exports = (supabase) => {
                     .eq('id', itemCentsComprador.id);
             }
 
-            // 4. Paga Cents ao vendedor (adiciona ou incrementa na mochila dele)[cite: 3]
+            // 4. Paga Cents ao vendedor[cite: 3]
             const { data: itemCentsVendedor } = await supabase
                 .from('mochila')
                 .select('*')
@@ -190,18 +203,25 @@ module.exports = (supabase) => {
             if (itemCompradoExistente) {
                 await supabase
                     .from('mochila')
-                    .update({ quantidade: itemCompradoExistente.quantidade + oferta.quantidade })
+                    .update({ quantidade: itemCompradoExistente.quantidade + qtdDesejada })
                     .eq('id', itemCompradoExistente.id);
             } else {
                 await supabase
                     .from('mochila')
-                    .insert([{ usuario_id: comprador_id, objeto_id: oferta.objeto_id, quantidade: oferta.quantidade, slot_index: 0 }]);
+                    .insert([{ usuario_id: comprador_id, objeto_id: oferta.objeto_id, quantidade: qtdDesejada, slot_index: 0 }]);
             }
 
-            // 6. Deleta a oferta do Market
-            await supabase.from('market').delete().eq('id', oferta_id);
+            // 6. Atualiza ou Deleta a oferta do Market[cite: 3]
+            if (oferta.quantidade === qtdDesejada) {
+                await supabase.from('market').delete().eq('id', oferta_id);
+            } else {
+                await supabase
+                    .from('market')
+                    .update({ quantidade: oferta.quantidade - qtdDesejada })
+                    .eq('id', oferta_id);
+            }
 
-            res.json({ message: 'Compra realizada com sucesso!' });
+            res.json({ message: `Compra de ${qtdDesejada} unidade(s) realizada com sucesso!` });
         } catch (err) {
             console.error('Erro ao comprar item:', err);
             res.status(500).json({ error: 'Erro ao processar compra.' });

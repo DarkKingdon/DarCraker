@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarCraker - Login / Cadastro</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+
+            /* 🖼️ IMAGEM DE FUNDO */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/fundo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .card { 
+            background: rgba(30, 30, 30, 0.85); /* Fundo semi-transparente */
+            backdrop-filter: blur(8px); /* Efeito vidro fosco */
+            padding: 25px; 
+            border-radius: 8px; 
+            width: 320px; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); 
+            border: 1px solid rgba(255, 152, 0, 0.3); /* Bordinha dourada sutil */
+        }
+
+        h2 { text-align: center; color: #ff9800; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
+        button { width: 100%; padding: 10px; background: #ff9800; border: none; color: #121212; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #e68a00; }
+        .toggle-btn { margin-top: 15px; text-align: center; font-size: 13px; color: #aaa; cursor: pointer; text-decoration: underline; }
+        .msg { margin-bottom: 15px; text-align: center; font-size: 14px; }
+        .erro { color: #f44336; }
+        .sucesso { color: #4caf50; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- Formulário de Login -->
+        <div id="form-login">
+            <h2>DarCraker - Login</h2>
+            <div id="msg-login" class="msg"></div>
+            <div class="form-group">
+                <label>E-mail:</label>
+                <input type="email" id="login-email">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="login-senha">
+            </div>
+            <button onclick="fazerLogin()">Entrar</button>
+            <div class="toggle-btn" onclick="alternarFormulario('cadastro')">Não tem conta? Cadastre-se</div>
+        </div>
+
+        <!-- Formulário de Cadastro -->
+        <div id="form-cadastro" style="display: none;">
+            <h2>Criar Herói</h2>
+            <div id="msg-cadastro" class="msg"></div>
+            <div class="form-group">
+                <label>Nome do Herói:</label>
+                <input type="text" id="cad-nome">
+            </div>
+            <div class="form-group">
+                <label>E-mail:</label>
+                <input type="email" id="cad-email">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" id="cad-senha">
+            </div>
+            <button onclick="fazerCadastro()">Cadastrar</button>
+            <div class="toggle-btn" onclick="alternarFormulario('login')">Já tem conta? Voltar ao Login</div>
+        </div>
+    </div>
+
+    <script>
+    // URL dinâmica: se estiver rodando no PC (localhost), usa a porta 3000. 
+    // Se estiver online no Render, usa a URL completa do seu backend.
+    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : 'https://darcraker.onrender.com';
+
+    function alternarFormulario(tipo) {
+        if (tipo === 'cadastro') {
+            document.getElementById('form-login').style.display = 'none';
+            document.getElementById('form-cadastro').style.display = 'block';
+        } else {
+            document.getElementById('form-cadastro').style.display = 'none';
+            document.getElementById('form-login').style.display = 'block';
+        }
+    }
+
+    async function fazerCadastro() {
+        const nome_heroi = document.getElementById('cad-nome').value;
+        const email = document.getElementById('cad-email').value;
+        const senha = document.getElementById('cad-senha').value;
+        const msg = document.getElementById('msg-cadastro');
+
+        const res = await fetch(`${API_URL}/api/cadastro`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome_heroi, email, senha })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            msg.className = 'msg sucesso';
+            msg.innerText = 'Cadastrado com sucesso! Faça login.';
+            setTimeout(() => alternarFormulario('login'), 1500);
+        } else {
+            msg.className = 'msg erro';
+            msg.innerText = data.error || 'Erro ao cadastrar';
+        }
+    }
+
+    async function fazerLogin() {
+        const email = document.getElementById('login-email').value;
+        const senha = document.getElementById('login-senha').value;
+        const msg = document.getElementById('msg-login');
+
+        const res = await fetch(`${API_URL}/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            // Guarda os dados do herói no navegador e redireciona
+            localStorage.setItem('heroi', JSON.stringify(data.usuario));
+            window.location.href = 'inicio.html';
+        } else {
+            msg.className = 'msg erro';
+            msg.innerText = data.error || 'Erro ao fazer login';
+        }
+    }
+</script>
+</body>
+</html>

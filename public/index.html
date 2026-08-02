@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DarCraker - Login / Cadastro</title>
+    <title>DarCracker - Início</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body { 
             font-family: Arial, sans-serif; 
             color: #fff; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
 
             /* 🖼️ IMAGEM DE FUNDO */
             background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/img/fundo.jpg');
@@ -20,25 +24,168 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            overflow: hidden;
         }
 
-        .card { 
-            background: rgba(30, 30, 30, 0.85); /* Fundo semi-transparente */
-            backdrop-filter: blur(8px); /* Efeito vidro fosco */
+        /* 👑 TÍTULO SUPERIOR CENTRAL */
+        .header-titulo {
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .header-titulo h1 {
+            font-size: 38px;
+            color: #ffd700;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+            letter-spacing: 2px;
+        }
+
+        /* 📐 CONTAINER PRINCIPAL (3 COLUNAS) */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr 300px;
+            gap: 20px;
+            flex: 1;
+            padding: 0 20px 20px 20px;
+        }
+
+        /* 👈 COLUNA ESQUERDA (BOTÕES) */
+        .painel-esquerdo {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-acao {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ff9800;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .btn-cadastrar {
+            background: #ff9800;
+            color: #121212;
+        }
+
+        .btn-cadastrar:hover {
+            background: #e68a00;
+            transform: scale(1.02);
+        }
+
+        .btn-download {
+            background: rgba(0, 150, 136, 0.85);
+            color: #fff;
+            border-color: #00bfa5;
+        }
+
+        .btn-download:hover {
+            background: #00bfa5;
+            transform: scale(1.02);
+        }
+
+        /* ⚪ COLUNA CENTRAL (CONTAINER EM BRANCO / INFORMAÇÕES) */
+        .painel-central {
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        /* 👉 COLUNA DIREITA (RANKING) */
+        .painel-direito {
+            background: rgba(18, 18, 18, 0.9);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            height: fit-content;
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        .ranking-header-title {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .ranking-table th {
+            color: #ffd700;
+        }
+
+        .posicao-top1 { color: #ffd700; font-weight: bold; }
+        .posicao-top2 { color: #c0c0c0; font-weight: bold; }
+        .posicao-top3 { color: #cd7f32; font-weight: bold; }
+
+        /* 🔲 MODAL DE CADASTRO (FICA NO CENTRO SOBREPOSTO) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .card-cadastro { 
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(8px);
             padding: 25px; 
             border-radius: 8px; 
             width: 320px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); 
-            border: 1px solid rgba(255, 152, 0, 0.3); /* Bordinha dourada sutil */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8); 
+            border: 1px solid #ff9800;
+            position: relative;
         }
 
-        h2 { text-align: center; color: #ff9800; margin-top: 0; }
+        .btn-fechar-modal {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #ff4d4d;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-size: 14px; }
         input { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
-        button { width: 100%; padding: 10px; background: #ff9800; border: none; color: #121212; font-weight: bold; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #e68a00; }
-        .toggle-btn { margin-top: 15px; text-align: center; font-size: 13px; color: #aaa; cursor: pointer; text-decoration: underline; }
+        
         .msg { margin-bottom: 15px; text-align: center; font-size: 14px; }
         .erro { color: #f44336; }
         .sucesso { color: #4caf50; }
@@ -46,27 +193,46 @@
 </head>
 <body>
 
-    <div class="card">
-        <!-- Formulário de Login -->
-        <div id="form-login">
-            <h2>DarCraker - Login</h2>
-            <div id="msg-login" class="msg"></div>
-            <div class="form-group">
-                <label>E-mail:</label>
-                <input type="email" id="login-email">
-            </div>
-            <div class="form-group">
-                <label>Senha:</label>
-                <input type="password" id="login-senha">
-            </div>
-            <button onclick="fazerLogin()">Entrar</button>
-            <div class="toggle-btn" onclick="alternarFormulario('cadastro')">Não tem conta? Cadastre-se</div>
-        </div>
+    <!-- 👑 NOME DARCRACKER CENTRALIZADO -->
+    <header class="header-titulo">
+        <h1>DarCracker</h1>
+    </header>
 
-        <!-- Formulário de Cadastro -->
-        <div id="form-cadastro" style="display: none;">
-            <h2>Criar Herói</h2>
+    <!-- 📐 ESTRUTURA PRINCIPAL DA PÁGINA -->
+    <main class="main-layout">
+
+        <!-- 👈 BOTOES DO LADO ESQUERDO -->
+        <aside class="painel-esquerdo">
+            <button class="btn-acao btn-cadastrar" onclick="abrirModalCadastro()">Registrar / Cadastrar</button>
+            <a href="https://www.mediafire.com/file/2jdfb34sl3h1wxh/DarCraker_RPG_Setup_1.0.2.exe/file" target="_blank" class="btn-acao btn-download"> baixar Jogo (Mediafire)</a>
+        </aside>
+
+        <!-- ⚪ CONTAINER EM BRANCO NO CENTRO -->
+        <section class="painel-central">
+            <h2>Bem-vindo ao DarCracker!</h2>
+            <p style="margin-top: 10px; color: #ccc;">Espaço reservado para avisos, novidades e informações do jogo.</p>
+        </section>
+
+        <!-- 👉 RANKING DO LADO DIREITO -->
+        <aside class="painel-direito">
+            <div class="ranking-header-title">
+                🏆 Top 10 Jogadores
+            </div>
+            <div id="conteudo-ranking">
+                <p style="color: #aaa;">Carregando ranking...</p>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 🔲 MODAL DE CADASTRO (OCULTO POR PADRÃO) -->
+    <div id="modal-cadastro" class="modal-overlay" style="display: none;">
+        <div class="card-cadastro">
+            <button class="btn-fechar-modal" onclick="fecharModalCadastro()">✖</button>
+            <h2 style="text-align: center; color: #ff9800; margin-bottom: 15px;">Criar Herói</h2>
+            
             <div id="msg-cadastro" class="msg"></div>
+            
             <div class="form-group">
                 <label>Nome do Herói:</label>
                 <input type="text" id="cad-nome">
@@ -79,28 +245,74 @@
                 <label>Senha:</label>
                 <input type="password" id="cad-senha">
             </div>
-            <button onclick="fazerCadastro()">Cadastrar</button>
-            <div class="toggle-btn" onclick="alternarFormulario('login')">Já tem conta? Voltar ao Login</div>
+            
+            <button class="btn-acao btn-cadastrar" onclick="fazerCadastro()">Cadastrar</button>
         </div>
     </div>
 
     <script>
-    // URL dinâmica: se estiver rodando no PC (localhost), usa a porta 3000. 
-    // Se estiver online no Render, usa a URL completa do seu backend.
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3000'
         : 'https://darcraker.onrender.com';
 
-    function alternarFormulario(tipo) {
-        if (tipo === 'cadastro') {
-            document.getElementById('form-login').style.display = 'none';
-            document.getElementById('form-cadastro').style.display = 'block';
-        } else {
-            document.getElementById('form-cadastro').style.display = 'none';
-            document.getElementById('form-login').style.display = 'block';
+    // 🔄 Função para abrir/fechar o Modal de Cadastro
+    function abrirModalCadastro() {
+        document.getElementById('modal-cadastro').style.display = 'flex';
+    }
+
+    function fecharModalCadastro() {
+        document.getElementById('modal-cadastro').style.display = 'none';
+    }
+
+    // 🏆 Carregar o Ranking Lateral na inicialização
+    async function carregarRanking() {
+        const container = document.getElementById('conteudo-ranking');
+        try {
+            const res = await fetch(`${API_URL}/api/ranking`);
+            const rankingData = await res.json();
+
+            if (!rankingData || rankingData.length === 0) {
+                container.innerHTML = '<p style="color:#aaa;">Nenhum jogador cadastrado.</p>';
+                return;
+            }
+
+            let tabelaHTML = `
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Pos.</th>
+                            <th>Herói</th>
+                            <th>Nível</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            rankingData.forEach((jogador, index) => {
+                const pos = index + 1;
+                let classePosicao = '';
+                if (pos === 1) classePosicao = 'posicao-top1';
+                else if (pos === 2) classePosicao = 'posicao-top2';
+                else if (pos === 3) classePosicao = 'posicao-top3';
+
+                tabelaHTML += `
+                    <tr class="${classePosicao}">
+                        <td>#${pos}</td>
+                        <td>${jogador.nome_heroi}</td>
+                        <td>Lv. ${jogador.nivel}</td>
+                    </tr>
+                `;
+            });
+
+            tabelaHTML += `</tbody></table>`;
+            container.innerHTML = tabelaHTML;
+
+        } catch (err) {
+            container.innerHTML = '<p style="color:red;">Erro ao carregar ranking.</p>';
         }
     }
 
+    // 📝 Realizar Cadastro do Herói
     async function fazerCadastro() {
         const nome_heroi = document.getElementById('cad-nome').value;
         const email = document.getElementById('cad-email').value;
@@ -116,35 +328,19 @@
         const data = await res.json();
         if (res.ok) {
             msg.className = 'msg sucesso';
-            msg.innerText = 'Cadastrado com sucesso! Faça login.';
-            setTimeout(() => alternarFormulario('login'), 1500);
+            msg.innerText = 'Herói cadastrado com sucesso!';
+            setTimeout(() => {
+                fecharModalCadastro();
+                carregarRanking(); // Atualiza o ranking para mostrar o novo herói
+            }, 1500);
         } else {
             msg.className = 'msg erro';
             msg.innerText = data.error || 'Erro ao cadastrar';
         }
     }
 
-    async function fazerLogin() {
-        const email = document.getElementById('login-email').value;
-        const senha = document.getElementById('login-senha').value;
-        const msg = document.getElementById('msg-login');
-
-        const res = await fetch(`${API_URL}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, senha })
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            // Guarda os dados do herói no navegador e redireciona
-            localStorage.setItem('heroi', JSON.stringify(data.usuario));
-            window.location.href = 'inicio.html';
-        } else {
-            msg.className = 'msg erro';
-            msg.innerText = data.error || 'Erro ao fazer login';
-        }
-    }
-</script>
+    // Executa ao carregar a página
+    carregarRanking();
+    </script>
 </body>
 </html>
