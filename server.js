@@ -78,6 +78,7 @@ app.post('/api/cadastro', async (req, res) => {
                     nome_heroi, 
                     email, 
                     senha: senhaHash, 
+                    ultimo_ping: new Date().toISOString(), // 👈 Adicionado aqui
                     nivel: 1,
                     exp_atual: 0,
                     exp_next_nivel: 10,
@@ -133,6 +134,7 @@ app.post('/api/login', async (req, res) => {
     try {
         const { data: usuario, error } = await supabase
             .from('usuarios')
+            .update({ ultimo_ping: new Date().toISOString() })
             .select('*')
             .eq('email', email)
             .single();
@@ -184,6 +186,43 @@ app.post('/api/login', async (req, res) => {
     } catch (err) {
         console.error('Erro interno:', err.message);
         res.status(500).json({ error: 'Erro interno no servidor.' });
+    }
+});
+
+
+// Rota para contar quantos players deram ping nos últimos 3 minutos
+app.get('/api/online-count', async (req, res) => {
+    try {
+        const tresMinutosAtras = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+
+        const { count, error } = await supabase
+            .from('usuarios')
+            .select('id', { count: 'exact', head: true })
+            .gte('ultimo_ping', tresMinutosAtras);
+
+        if (error) throw error;
+
+        res.json({ online: count || 0 });
+    } catch (err) {
+        console.error('Erro ao buscar players online:', err.message);
+        res.status(500).json({ error: 'Erro ao contar players online.' });
+    }
+});
+
+// Rota de "Heartbeat" (sinal de vida do jogador conectado)
+app.post('/api/ping', async (req, res) => {
+    const { usuario_id } = req.body;
+    if (!usuario_id) return res.status(400).end();
+
+    try {
+        await supabase
+            .from('usuarios')
+            .update({ ultimo_ping: new Date().toISOString() })
+            .eq('id', usuario_id);
+
+        res.status(200).json({ success: true });
+    } catch (err) {
+        res.status(500).end();
     }
 });
 
