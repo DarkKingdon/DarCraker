@@ -419,6 +419,50 @@
         }
     }
 
+    // 🟢 Busca a quantidade de players online
+async function carregarPlayersOnline() {
+    try {
+        const res = await fetch(`${API_URL}/api/online-count`);
+        const data = await res.json();
+        
+        const elContador = document.getElementById('qtd-online');
+        if (elContador && data.online !== undefined) {
+            elContador.innerText = data.online;
+        }
+    } catch (err) {
+        console.error('Erro ao carregar contagem de players:', err);
+    }
+}
+
+// 💓 Envia um sinal mantendo o herói ativo se estiver logado
+async function enviarPing() {
+    const heroiSalvo = localStorage.getItem('heroi');
+    if (!heroiSalvo) return;
+
+    const usuario = JSON.parse(heroiSalvo);
+    if (!usuario || !usuario.id) return;
+
+    try {
+        await fetch(`${API_URL}/api/ping`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario_id: usuario.id })
+        });
+    } catch (err) {
+        // Falha silenciosa
+    }
+}
+
+// Executa ao carregar a página
+carregarPlayersOnline();
+enviarPing();
+
+// Atualiza a contagem a cada 10 segundos
+setInterval(carregarPlayersOnline, 10000);
+
+// Envia o "ping" de presença a cada 1 minuto (caso esteja logado)
+setInterval(enviarPing, 60000);
+
     // Executa ao carregar a página
     carregarRanking();
     </script>
