@@ -182,6 +182,38 @@
             font-weight: bold;
         }
 
+        /* Posicionamento relativo para o cabeçalho */
+.header-titulo {
+    position: relative;
+    text-align: center;
+    padding: 15px 0;
+}
+
+/* Caixa do marcador de Players Online */
+.players-online-box {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #ff9800;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4caf50;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #4caf50;
+}
+
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-size: 14px; }
         input { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 4px; border: 1px solid #444; background: #2a2a2a; color: #fff; }
@@ -195,8 +227,12 @@
 
     <!-- 👑 NOME DARCRACKER CENTRALIZADO -->
     <header class="header-titulo">
-        <h1>DarCracker</h1>
-    </header>
+    <div class="players-online-box">
+        <span class="status-dot"></span>
+        <span>Online: <strong id="qtd-online" style="color: #ffd700;">0</strong></span>
+    </div>
+    <h1>DarCracker</h1>
+</header>
 
     <!-- 📐 ESTRUTURA PRINCIPAL DA PÁGINA -->
     <main class="main-layout">
