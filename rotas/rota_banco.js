@@ -74,7 +74,7 @@ module.exports = (supabase) => {
                         usuario_id,
                         tipo: 'lucro_certo',
                         valor_investido: valor,
-                        tempo_segundos: 60,
+                        tempo_segundos: 86400, // 👈 Mude de 60 para 86400 (24 Horas)
                         taxa_rendimento: 0.005,
                         data_inicio: new Date().toISOString()
                     }
