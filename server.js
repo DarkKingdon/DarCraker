@@ -58,6 +58,9 @@ app.use('/api/market', rotaMarket);
 const rotaSantuario = require('./rotas/rota_santuario')(supabase);
 app.use('/api/santuario', rotaSantuario);
 
+const rotaBanco = require('./rotas/rota_banco')(supabase);
+app.use('/api/banco', rotaBanco);
+
 // Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
