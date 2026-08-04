@@ -122,8 +122,8 @@ export function abrirModalBanco() {
             <div class="banco-card-opcao">
                 <h3 style="color: #ffd700;">💰 Investimento: Lucro Certo</h3>
                 <p style="font-size: 12px; color: #ccc; margin-top: 4px;">
-                    Rendimento: <strong>0.5%</strong> a cada <strong>60 segundos</strong>.
-                </p>
+                Rendimento: <strong>0.5%</strong> a cada <strong>24 horas</strong>.
+            </p>
 
                 <div id="area-investimento-conteudo">
                     <!-- Dinâmico: formulário ou progresso -->
@@ -196,20 +196,25 @@ function renderizarProgresso(inv) {
     const inicio = new Date(inv.data_inicio).getTime();
 
     const atualizarTimer = () => {
-        const agora = Date.now();
-        const decorridoSeg = Math.floor((agora - inicio) / 1000);
-        const restante = inv.tempo_segundos - decorridoSeg;
+    const agora = Date.now();
+    const decorridoSeg = Math.floor((agora - inicio) / 1000);
+    const restante = inv.tempo_segundos - decorridoSeg;
 
-        if (restante <= 0) {
-            clearInterval(bankInterval);
-            txtTempo.innerText = "Pronto para coleta!";
-            txtTempo.style.color = "#00ff88";
-            btnColetar.innerText = `Coletar ${total} Cents`;
-            btnColetar.disabled = false;
-        } else {
-            txtTempo.innerText = `${restante}s`;
-        }
-    };
+    if (restante <= 0) {
+        clearInterval(bankInterval);
+        txtTempo.innerText = "Pronto para coleta!";
+        txtTempo.style.color = "#00ff88";
+        btnColetar.innerText = `Coletar ${total} Cents`;
+        btnColetar.disabled = false;
+    } else {
+        // Converte os segundos restantes para Horas, Minutos e Segundos
+        const horas = Math.floor(restante / 3600);
+        const minutos = Math.floor((restante % 3600) / 60);
+        const segundos = restante % 60;
+
+        txtTempo.innerText = `${horas}h ${minutos}m ${segundos}s`;
+    }
+};
 
     atualizarTimer();
     if (bankInterval) clearInterval(bankInterval);
