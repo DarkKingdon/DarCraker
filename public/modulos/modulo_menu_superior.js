@@ -3,7 +3,9 @@ import { abrirModalHunts } from './modais/modal_hunts.js';
 import { abrirModalRanking } from './modais/modal_ranking.js';
 import { abrirModalBau } from './modais/modal_bau.js';
 import { abrirModalMarket } from './modais/modal_market.js';
-import { abrirModalSantuario } from './modais/modal_santuario.js'; // 👈 Adicionado
+import { abrirModalSantuario } from './modais/modal_santuario.js';
+import { abrirModalStatus } from './modais/modal_status_jogador.js';
+import { abrirModalBanco } from './modais/modal_banco.js';
 
 export function toggleStatus() {
     const painelStatus = document.getElementById('painel-status');
@@ -191,12 +193,12 @@ function renderizarHTMLMenu() {
 
                     <!-- 🔴 NOVO CARD SANTUÁRIO -->
                     <div id="btn-santuario" class="card-menu">
-                        <img src="/img/santuario/santuario.jpg" alt="Santuário" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
+                        <img src="/img/icones/santuario.png" alt="Santuário" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
                         <span class="label-menu">Santuário</span>
                     </div>
 
                     <div id="btn-market" class="card-menu">
-                        <img src="${imgGenerica}" alt="Market" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
+                        <img src="/img/icones/market.png" alt="Market" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
                         <span class="label-menu">Market</span>
                     </div>
 
@@ -206,9 +208,23 @@ function renderizarHTMLMenu() {
                     </div>
 
                     <div id="btn-ranking" class="card-menu">
+                        <img src="/img/icones/ranking.png" alt="Ranking" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
+                        <span class="label-menu">Ranking</span>
+                    </div>
+
+                    <div id="btn-bank" class="card-menu">
+                        <img src="/img/icones/banco.png" alt="Bank" onerror="this.src='https://placehold.co/38x38/333/fff?text=Bank';">
+                        <span class="label-menu">Bank</span>
+                    </div>
+
+                    <!-- exemplo de como fica com img generica nao apagar 
+                    
+                    <div id="btn-ranking" class="card-menu">
                         <img src="${imgGenerica}" alt="Ranking" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
                         <span class="label-menu">Ranking</span>
                     </div>
+
+                    -->
 
                     <div id="btn-sair" class="card-menu card-menu-sair">
                         <img src="/img/icones/sair.png" alt="Sair" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
@@ -224,12 +240,13 @@ export function inicializarMenuSuperior() {
     aplicarEstilosMenu();
     renderizarHTMLMenu();
 
-    document.getElementById('btn-status')?.addEventListener('click', toggleStatus);
+    document.getElementById('btn-status')?.addEventListener('click', abrirModalStatus);
     document.getElementById('btn-mochila')?.addEventListener('click', abrirModalMochila);
     document.getElementById('btn-bau')?.addEventListener('click', abrirModalBau);
-    document.getElementById('btn-santuario')?.addEventListener('click', abrirModalSantuario); // 👈 Evento adicionado
+    document.getElementById('btn-santuario')?.addEventListener('click', abrirModalSantuario);
     document.getElementById('btn-market')?.addEventListener('click', abrirModalMarket);
     document.getElementById('btn-hunts')?.addEventListener('click', abrirModalHunts);
     document.getElementById('btn-ranking')?.addEventListener('click', abrirModalRanking);
+    document.getElementById('btn-bank')?.addEventListener('click', abrirModalBanco);
     document.getElementById('btn-sair')?.addEventListener('click', sair);
 }
