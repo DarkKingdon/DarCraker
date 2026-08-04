@@ -120,8 +120,8 @@ module.exports = (supabase) => {
             const lucro = Math.round(inv.valor_investido * inv.taxa_rendimento);
             const totalRetorno = inv.valor_investido + lucro;
 
-            // Marcar investimento como coletado
-            await supabase.from('investimentos').update({ coletado: true }).eq('id', inv.id);
+            // FAÇA ISSO (Apaga o registro assim que o resgate é feito):
+            await supabase.from('investimentos').delete().eq('id', inv.id);
 
             // Adicionar Cents de volta na mochila
             const { data: mochilaItem } = await supabase
