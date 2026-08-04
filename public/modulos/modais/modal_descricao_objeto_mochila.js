@@ -1,6 +1,7 @@
 // public/modulos/modais/modal_descricao_objeto_mochila.js
 import { abrirModalMochila } from './modal_mochila.js';
 import { carregarStatus } from '../modulo_menu_esquerdo.js';
+import { registrarSupply } from './modal_hunting_analyser.js'; // 👈 1. IMPORTAÇÃO ADICIONADA
 
 function aplicarEstilosDescricaoItem() {
     if (document.getElementById('estilo-modal-descricao-item')) return;
@@ -210,6 +211,11 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
                         localStorage.setItem('heroi', JSON.stringify(data.usuario));
                         carregarStatus();
                     }
+
+                    // 📊 2. REGISTRA O GASTO NO HUNTING ANALYSER
+                    // Se o item não tiver valor de venda cadastrado, considera valor 1 como padrão
+                    const valorConsumido = objeto.valor_de_venda ?? 1;
+                    registrarSupply(valorConsumido);
 
                     alert(data.message);
                     modal.style.display = 'none';

@@ -1,11 +1,18 @@
+// public/motores/motor_status_heroi.js
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
+import { registrarExp } from '../modulos/modais/modal_hunting_analyser.js'; // 👈 Adicionado
 
 export function concederRecompensas(monstro, treinoSelecionado) {
     let heroi = JSON.parse(localStorage.getItem('heroi'));
     if (!heroi) return;
 
     // 1. EXP de Nível Geral
-    heroi.exp_atual = (heroi.exp_atual ?? 0) + (monstro.recompensa_exp_atual || 1);
+    const expNivel = monstro.recompensa_exp_atual || 1;
+    heroi.exp_atual = (heroi.exp_atual ?? 0) + expNivel;
+
+    // 📊 REGISTRA A XP NO HUNTING ANALYSER
+    registrarExp(expNivel);
+
     if (heroi.exp_atual >= (heroi.exp_next_nivel ?? 10)) {
         heroi.nivel = (heroi.nivel ?? 1) + 1;
         heroi.exp_atual = heroi.exp_atual - heroi.exp_next_nivel;

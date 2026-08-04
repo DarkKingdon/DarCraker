@@ -150,7 +150,17 @@ export function abrirModalFinalDoCombate(monstro, treinoSelecionado, dropInfo) {
 
     modal.style.display = 'flex';
 
-    document.getElementById('btn-fechar-modal-final').onclick = () => {
+    // Função centralizada para fechar o modal e limpar o timer
+    const fecharModal = () => {
         modal.style.display = 'none';
+        if (timerAutoFechar) {
+            clearTimeout(timerAutoFechar);
+        }
     };
+
+    // Fecha ao clicar no botão "CONTINUAR"
+    document.getElementById('btn-fechar-modal-final').onclick = fecharModal;
+
+    // Fecha automaticamente após 4 segundos (4000ms)
+    const timerAutoFechar = setTimeout(fecharModal, 4000);
 }

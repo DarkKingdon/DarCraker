@@ -3,6 +3,8 @@ import { concederRecompensas } from './motor_status_heroi.js';
 import { iniciarCombate } from '../modulos/modulo_tela_de_combate.js';
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
 import { abrirModalFinalDoCombate } from '../modulos/modais/modal_final_do_combate.js';
+import { registrarLoot } from '../modulos/modais/modal_hunting_analyser.js'; // 👈 Adicionado
+import { registrarLootNoAnalyser } from '../modulos/modais/modal_loot_analyser.js'; // 👈 Adicionado
 
 let combatendo = false;
 let modoAuto = false;
@@ -25,7 +27,6 @@ export function toggleAutoCombate(heroi, monstro, treinoSelecionado) {
         }
     }
 
-    // Se ativou o AUTO e não está atacando no momento, executa o turno imediatamente
     if (modoAuto && !combatendo) {
         const heroiAtualizado = JSON.parse(localStorage.getItem('heroi')) || heroi;
         executarTurno(heroiAtualizado, monstro, treinoSelecionado);
@@ -35,10 +36,8 @@ export function toggleAutoCombate(heroi, monstro, treinoSelecionado) {
 export function executarTurno(heroi, monstro, treinoSelecionado) {
     if (combatendo) return;
 
-    // Garante pegar sempre o herói com a vida real mais recente
     let heroiAtual = JSON.parse(localStorage.getItem('heroi')) || heroi;
 
-    // Se o herói já estiver morto, impede o combate
     if ((heroiAtual.vida_atual ?? 0) <= 0) {
         const elLog = document.getElementById('log-combate');
         if (elLog) elLog.innerHTML = `<span style="color:#ff3333;">Você está sem vida! Descanse ou use uma poção.</span>`;
@@ -65,50 +64,58 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
 
     // Se o monstro morrer com este golpe
     if (monstro.vida_atual <= 0) {
-    elLog.innerHTML = `<span style="color:#00ff88;">Você deu <strong>${danoHeroi}</strong> de dano e derrotou o ${monstro.nome}!</span>`;
-    
-    // Concede a XP
-    concederRecompensas(monstro, treinoSelecionado);
+        elLog.innerHTML = `<span style="color:#00ff88;">Você deu <strong>${danoHeroi}</strong> de dano e derrotou o ${monstro.nome}!</span>`;
+        
+        // Concede a XP
+        concederRecompensas(monstro, treinoSelecionado);
 
-    // Processa o Drop e abre o Modal
-    const heroiAtual = JSON.parse(localStorage.getItem('heroi'));
-    fetch('/api/combate/drop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario_id: heroiAtual.id, monstro_id: monstro.id })
-    })
-    .then(res => res.json())
-    .then(data => {
-        // Exibe o modal final com as recompensas e os drops
-        abrirModalFinalDoCombate(monstro, treinoSelecionado, data);
-    });
+        // Processa o Drop e abre o Modal
+        const heroiAtual = JSON.parse(localStorage.getItem('heroi'));
+        fetch('/api/combate/drop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario_id: heroiAtual.id, monstro_id: monstro.id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // 📊 REGISTRA OS DROPS OBTIDOS NO HUNTING ANALYSER
+            if (data && data.dropsObtidos && data.dropsObtidos.length > 0) {
+                data.dropsObtidos.forEach(drop => {
+                    const valorUnitario = drop.item.valor_de_venda || 0;
+                    const qtd = drop.quantidade || 1;
+                    registrarLoot(valorUnitario * qtd);
 
-    agendarRenascerMonstro(monstro, elLog);
-    return;
-}
+            // Registra no Loot Analyser (com objeto de imagem e quantidade para o grid)
+            registrarLootNoAnalyser(drop.item, qtd);
+
+                });
+            }
+
+            // Exibe o modal final com as recompensas e os drops
+            abrirModalFinalDoCombate(monstro, treinoSelecionado, data);
+        });
+
+        agendarRenascerMonstro(monstro, elLog);
+        return;
+    }
 
     elLog.innerHTML = `Você deu <strong>${danoHeroi}</strong> de dano. Aguarde a resposta do ${monstro.nome}...`;
 
     // 2. TEMPORIZADOR DE 3 SEGUNDOS PARA O CONTRA-ATAQUE
     iniciarTemporizador(3000, timerContainer, timerBar, () => {
-        // Monstro contra-ataca
         const danoMonstro = Math.max(0, Math.floor(Math.random() * (monstro.ataque_maximo - monstro.ataque_minimo + 1)) + monstro.ataque_minimo - (heroiAtual.defesa_minima || 0));
         
-        // MANTÉM O DANO NO HERÓI
         heroiAtual.vida_atual = Math.max(0, heroiAtual.vida_atual - danoMonstro);
 
-        // Salva a nova vida do herói no LocalStorage e atualiza o painel esquerdo em tempo real
         localStorage.setItem('heroi', JSON.stringify(heroiAtual));
         carregarStatus();
 
-        // Atualiza a barrinha de vida da tela de combate
         if (elHpHeroi) elHpHeroi.style.width = `${Math.max(0, (heroiAtual.vida_atual / heroiAtual.vida_maxima) * 100)}%`;
 
-        // Se o Herói morrer
         if (heroiAtual.vida_atual <= 0) {
             elLog.innerHTML = `<span style="color:#ff3333;">O ${monstro.nome} te causou <strong>${danoMonstro}</strong> de dano e você foi derrotado!</span>`;
             combatendo = false;
-            modoAuto = false; // Desliga o Auto ao morrer
+            modoAuto = false;
             atualizarBotaoAutoUI();
             return;
         }
@@ -117,7 +124,6 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
         if (btnAtacar) btnAtacar.disabled = false;
         combatendo = false;
 
-        // SE O MODO AUTO ESTIVER ATIVO, CONTINUA O PRÓXIMO TURNO!
         if (modoAuto) {
             setTimeout(() => {
                 executarTurno(heroiAtual, monstro, treinoSelecionado);
@@ -151,7 +157,7 @@ function iniciarTemporizador(duracaoMs, container, barra, callback) {
 }
 
 function agendarRenascerMonstro(monstro, elLog) {
-    let tempoRestante = 4;
+    let tempoRestante = 10; // 👈 Mude de 4 para 10 aqui
     
     const interval = setInterval(() => {
         if (elLog) {
@@ -162,7 +168,6 @@ function agendarRenascerMonstro(monstro, elLog) {
         if (tempoRestante < 0) {
             clearInterval(interval);
             combatendo = false;
-            // Reinicia a arena de batalha sem restaurar a vida do herói!
             iniciarCombate(monstro);
         }
     }, 1000);
