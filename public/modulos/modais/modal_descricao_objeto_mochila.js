@@ -1,7 +1,8 @@
 // public/modulos/modais/modal_descricao_objeto_mochila.js
 import { abrirModalMochila } from './modal_mochila.js';
 import { carregarStatus } from '../modulo_menu_esquerdo.js';
-import { registrarSupply } from './modal_hunting_analyser.js'; // 👈 1. IMPORTAÇÃO ADICIONADA
+import { registrarSupply } from './modal_hunting_analyser.js';
+import { atualizarTextosBarras } from '../../motores/motor_combate.js'; // 👈 IMPORTAÇÃO ADICIONADA
 
 function aplicarEstilosDescricaoItem() {
     if (document.getElementById('estilo-modal-descricao-item')) return;
@@ -208,12 +209,33 @@ export function abrirModalDescricaoItem(itemMochila, imgSrc) {
                 const data = await res.json();
                 if (res.ok) {
                     if (data.usuario) {
+                        // 1. Atualiza o herói no localStorage
                         localStorage.setItem('heroi', JSON.stringify(data.usuario));
+                        
+                        // 2. Atualiza o menu lateral esquerdo
                         carregarStatus();
+
+                        // 3. Atualiza a barra de vida vermelha da Tela de Combate (se estiver aberta no DOM)
+                        const elHpHeroi = document.getElementById('hp-heroi');
+                        if (elHpHeroi) {
+                            const pctVida = Math.max(0, (data.usuario.vida_atual / data.usuario.vida_maxima) * 100);
+                            elHpHeroi.style.width = `${pctVida}%`;
+                        }
+
+                        // 4. Atualiza os textos numéricos / porcentagem na Tela de Combate
+                        const elTextHpHeroi = document.getElementById('text-hp-heroi');
+                        if (elTextHpHeroi) {
+                            const usarPorcentagem = localStorage.getItem('opcoes_exibir_porcentagem') === 'true';
+                            if (usarPorcentagem) {
+                                const pct = Math.max(0, Math.round((data.usuario.vida_atual / data.usuario.vida_maxima) * 100));
+                                elTextHpHeroi.innerText = `${pct}%`;
+                            } else {
+                                elTextHpHeroi.innerText = `${Math.max(0, data.usuario.vida_atual)} - ${data.usuario.vida_maxima}`;
+                            }
+                        }
                     }
 
-                    // 📊 2. REGISTRA O GASTO NO HUNTING ANALYSER
-                    // Se o item não tiver valor de venda cadastrado, considera valor 1 como padrão
+                    // 📊 REGISTRA O GASTO NO HUNTING ANALYSER
                     const valorConsumido = objeto.valor_de_venda ?? 1;
                     registrarSupply(valorConsumido);
 
