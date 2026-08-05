@@ -3,14 +3,62 @@ import { concederRecompensas } from './motor_status_heroi.js';
 import { iniciarCombate } from '../modulos/modulo_tela_de_combate.js';
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
 import { abrirModalFinalDoCombate } from '../modulos/modais/modal_final_do_combate.js';
-import { registrarLoot } from '../modulos/modais/modal_hunting_analyser.js'; // 👈 Adicionado
-import { registrarLootNoAnalyser } from '../modulos/modais/modal_loot_analyser.js'; // 👈 Adicionado
+import { registrarLoot } from '../modulos/modais/modal_hunting_analyser.js';
+import { registrarLootNoAnalyser } from '../modulos/modais/modal_loot_analyser.js';
 
 let combatendo = false;
 let modoAuto = false;
 
 export function getModoAuto() {
     return modoAuto;
+}
+
+// 🎯 Nova Função para formatar o texto das barras (número absoluto ou %)
+export function atualizarTextosBarras(heroi, monstro) {
+    const usarPorcentagem = localStorage.getItem('opcoes_exibir_porcentagem') === 'true';
+
+    const elTextHpHeroi = document.getElementById('text-hp-heroi');
+    const elTextMpHeroi = document.getElementById('text-mp-heroi');
+    const elTextHpMonstro = document.getElementById('text-hp-monstro');
+    const elTextMpMonstro = document.getElementById('text-mp-monstro');
+
+    // Herói
+    if (elTextHpHeroi) {
+        if (usarPorcentagem) {
+            const pct = Math.max(0, Math.round((heroi.vida_atual / heroi.vida_maxima) * 100));
+            elTextHpHeroi.innerText = `${pct}%`;
+        } else {
+            elTextHpHeroi.innerText = `${Math.max(0, heroi.vida_atual)} - ${heroi.vida_maxima}`;
+        }
+    }
+    if (elTextMpHeroi) {
+        if (usarPorcentagem) {
+            const pct = Math.max(0, Math.round((heroi.mana_atual / heroi.mana_maxima) * 100));
+            elTextMpHeroi.innerText = `${pct}%`;
+        } else {
+            elTextMpHeroi.innerText = `${Math.max(0, heroi.mana_atual)} - ${heroi.mana_maxima}`;
+        }
+    }
+
+    // Monstro
+    if (elTextHpMonstro) {
+        if (usarPorcentagem) {
+            const pct = Math.max(0, Math.round((monstro.vida_atual / monstro.vida_maxima) * 100));
+            elTextHpMonstro.innerText = `${pct}%`;
+        } else {
+            elTextHpMonstro.innerText = `${Math.max(0, monstro.vida_atual)} - ${monstro.vida_maxima}`;
+        }
+    }
+    if (elTextMpMonstro) {
+        const manaAtual = monstro.mana_atual ?? 0;
+        const manaMax = monstro.mana_maxima ?? 0;
+        if (usarPorcentagem) {
+            const pct = manaMax > 0 ? Math.max(0, Math.round((manaAtual / manaMax) * 100)) : 0;
+            elTextMpMonstro.innerText = `${pct}%`;
+        } else {
+            elTextMpMonstro.innerText = `${Math.max(0, manaAtual)} - ${manaMax}`;
+        }
+    }
 }
 
 export function toggleAutoCombate(heroi, monstro, treinoSelecionado) {
@@ -61,15 +109,14 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
     monstro.vida_atual = Math.max(0, monstro.vida_atual - danoHeroi);
 
     if (elHpMonstro) elHpMonstro.style.width = `${(monstro.vida_atual / monstro.vida_maxima) * 100}%`;
+    atualizarTextosBarras(heroiAtual, monstro);
 
     // Se o monstro morrer com este golpe
     if (monstro.vida_atual <= 0) {
         elLog.innerHTML = `<span style="color:#00ff88;">Você deu <strong>${danoHeroi}</strong> de dano e derrotou o ${monstro.nome}!</span>`;
         
-        // Concede a XP
         concederRecompensas(monstro, treinoSelecionado);
 
-        // Processa o Drop e abre o Modal
         const heroiAtual = JSON.parse(localStorage.getItem('heroi'));
         fetch('/api/combate/drop', {
             method: 'POST',
@@ -78,20 +125,15 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
         })
         .then(res => res.json())
         .then(data => {
-            // 📊 REGISTRA OS DROPS OBTIDOS NO HUNTING ANALYSER
             if (data && data.dropsObtidos && data.dropsObtidos.length > 0) {
                 data.dropsObtidos.forEach(drop => {
                     const valorUnitario = drop.item.valor_de_venda || 0;
                     const qtd = drop.quantidade || 1;
                     registrarLoot(valorUnitario * qtd);
-
-            // Registra no Loot Analyser (com objeto de imagem e quantidade para o grid)
-            registrarLootNoAnalyser(drop.item, qtd);
-
+                    registrarLootNoAnalyser(drop.item, qtd);
                 });
             }
 
-            // Exibe o modal final com as recompensas e os drops
             abrirModalFinalDoCombate(monstro, treinoSelecionado, data);
         });
 
@@ -101,8 +143,12 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
 
     elLog.innerHTML = `Você deu <strong>${danoHeroi}</strong> de dano. Aguarde a resposta do ${monstro.nome}...`;
 
-    // 2. TEMPORIZADOR DE 3 SEGUNDOS PARA O CONTRA-ATAQUE
-    iniciarTemporizador(3000, timerContainer, timerBar, () => {
+    // 2. TEMPORIZADOR DE 5 SEGUNDOS PARA O CONTRA-ATAQUE
+    iniciarTemporizador(5000, timerContainer, timerBar, () => {
+        // 💡 RELEITURA DO HERÓI: Garante que se o herói usou um item (como maçã) durante a contagem,
+        // a nova vida atualizada seja lida do localStorage antes do monstro causar dano.
+        heroiAtual = JSON.parse(localStorage.getItem('heroi')) || heroiAtual;
+
         const danoMonstro = Math.max(0, Math.floor(Math.random() * (monstro.ataque_maximo - monstro.ataque_minimo + 1)) + monstro.ataque_minimo - (heroiAtual.defesa_minima || 0));
         
         heroiAtual.vida_atual = Math.max(0, heroiAtual.vida_atual - danoMonstro);
@@ -111,6 +157,7 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
         carregarStatus();
 
         if (elHpHeroi) elHpHeroi.style.width = `${Math.max(0, (heroiAtual.vida_atual / heroiAtual.vida_maxima) * 100)}%`;
+        atualizarTextosBarras(heroiAtual, monstro);
 
         if (heroiAtual.vida_atual <= 0) {
             elLog.innerHTML = `<span style="color:#ff3333;">O ${monstro.nome} te causou <strong>${danoMonstro}</strong> de dano e você foi derrotado!</span>`;
@@ -127,7 +174,7 @@ export function executarTurno(heroi, monstro, treinoSelecionado) {
         if (modoAuto) {
             setTimeout(() => {
                 executarTurno(heroiAtual, monstro, treinoSelecionado);
-            }, 300);
+            }, 500);
         }
     });
 }
@@ -157,7 +204,7 @@ function iniciarTemporizador(duracaoMs, container, barra, callback) {
 }
 
 function agendarRenascerMonstro(monstro, elLog) {
-    let tempoRestante = 10; // 👈 Mude de 4 para 10 aqui
+    let tempoRestante = 10;
     
     const interval = setInterval(() => {
         if (elLog) {
