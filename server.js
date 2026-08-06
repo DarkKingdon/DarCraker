@@ -25,23 +25,11 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // ==========================================
 // IMPORTANDO E REGISTRANDO AS ROTAS SEPARADAS
 // ==========================================
-const rotaConsumirMaca = require('./rotas/rota_consumir_maca')(supabase);
-app.use('/api/mochila', rotaConsumirMaca);
 
-const rotaDbBuscarAMochilaDoUsuario = require('./rotas/rota_db_buscar_a_mochila_do_usuario')(supabase);
-app.use('/api/mochila', rotaDbBuscarAMochilaDoUsuario);
 
-const rotaRetirarObjetoDoBau = require('./rotas/rota_retirar_objeto_do_bau')(supabase);
-app.use('/api/bau', rotaRetirarObjetoDoBau);
 
-const rotaGuardarObjetoNoBau = require('./rotas/rota_guardar_objeto_no_bau')(supabase);
-app.use('/api/bau', rotaGuardarObjetoNoBau);
 
-const rotaDbBuscarObjetoDoBau = require('./rotas/rota_db_buscar_objeto_do_bau')(supabase);
-app.use('/api/bau', rotaDbBuscarObjetoDoBau);
 
-const rotaDbBuscarTop10Ranking = require('./rotas/rota_db_buscar_top10_ranking')(supabase);
-app.use('/api/ranking', rotaDbBuscarTop10Ranking);
 
 const rotaDbBuscarConcederOsDropsDoMonstro = require('./rotas/rota_db_buscar_conceder_os_drops_do_monstro')(supabase);
 app.use('/api/combate', rotaDbBuscarConcederOsDropsDoMonstro);
@@ -52,14 +40,45 @@ app.use('/api/heroi', rotaSalvarEAtualizarStatusDoHeroi);
 const rotaDbBuscarListaDeMonstros = require('./rotas/rota_db_buscar_lista_de_monstros')(supabase);
 app.use('/api/monstros', rotaDbBuscarListaDeMonstros);
 
-const rotaMarket = require('./rotas/rota_market')(supabase);
+
+// Rota da Mochila
+const rotaConsumirMaca = require('./rotas/mochila/rota_consumir_maca')(supabase);
+app.use('/api/mochila', rotaConsumirMaca);
+
+const rotaDbBuscarAMochilaDoUsuario = require('./rotas/mochila/rota_db_buscar_a_mochila_do_usuario')(supabase);
+app.use('/api/mochila', rotaDbBuscarAMochilaDoUsuario);
+
+// Rota do Banco
+const rotaBanco = require('./rotas/banco/rota_banco')(supabase);
+app.use('/api/banco', rotaBanco);
+
+// Rota do Bau
+const rotaDbBuscarObjetoDoBau = require('./rotas/bau/rota_db_buscar_objeto_do_bau')(supabase);
+app.use('/api/bau', rotaDbBuscarObjetoDoBau);
+
+const rotaGuardarObjetoNoBau = require('./rotas/bau/rota_guardar_objeto_no_bau')(supabase);
+app.use('/api/bau', rotaGuardarObjetoNoBau);
+
+const rotaRetirarObjetoDoBau = require('./rotas/bau/rota_retirar_objeto_do_bau')(supabase);
+app.use('/api/bau', rotaRetirarObjetoDoBau);
+
+// Rota do Correio
+const rotaCorreio = require('./rotas/correio/rota_correio')(supabase);
+app.use('/api/correio', rotaCorreio);
+
+// Rota do Market
+const rotaMarket = require('./rotas/market/rota_market')(supabase);
 app.use('/api/market', rotaMarket);
 
-const rotaSantuario = require('./rotas/rota_santuario')(supabase);
+// Rota do Ranking
+const rotaDbBuscarTop10Ranking = require('./rotas/ranking/rota_db_buscar_top10_ranking')(supabase);
+app.use('/api/ranking', rotaDbBuscarTop10Ranking);
+
+//Rota do Santuario
+const rotaSantuario = require('./rotas/santuario/rota_santuario')(supabase);
 app.use('/api/santuario', rotaSantuario);
 
-const rotaBanco = require('./rotas/rota_banco')(supabase);
-app.use('/api/banco', rotaBanco);
+// ----------------------------------------- //
 
 // Rota principal
 app.get('/', (req, res) => {
