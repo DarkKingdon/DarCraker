@@ -26,28 +26,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // IMPORTANDO E REGISTRANDO AS ROTAS SEPARADAS
 // ==========================================
 
-
-
-
-
-
-const rotaDbBuscarConcederOsDropsDoMonstro = require('./rotas/rota_db_buscar_conceder_os_drops_do_monstro')(supabase);
-app.use('/api/combate', rotaDbBuscarConcederOsDropsDoMonstro);
-
-const rotaSalvarEAtualizarStatusDoHeroi = require('./rotas/rota_salvar_e_atualizar_status_do_heroi')(supabase);
-app.use('/api/heroi', rotaSalvarEAtualizarStatusDoHeroi);
-
-const rotaDbBuscarListaDeMonstros = require('./rotas/rota_db_buscar_lista_de_monstros')(supabase);
-app.use('/api/monstros', rotaDbBuscarListaDeMonstros);
-
-
-// Rota da Mochila
-const rotaConsumirMaca = require('./rotas/mochila/rota_consumir_maca')(supabase);
-app.use('/api/mochila', rotaConsumirMaca);
-
-const rotaDbBuscarAMochilaDoUsuario = require('./rotas/mochila/rota_db_buscar_a_mochila_do_usuario')(supabase);
-app.use('/api/mochila', rotaDbBuscarAMochilaDoUsuario);
-
 // Rota do Banco
 const rotaBanco = require('./rotas/banco/rota_banco')(supabase);
 app.use('/api/banco', rotaBanco);
@@ -62,13 +40,32 @@ app.use('/api/bau', rotaGuardarObjetoNoBau);
 const rotaRetirarObjetoDoBau = require('./rotas/bau/rota_retirar_objeto_do_bau')(supabase);
 app.use('/api/bau', rotaRetirarObjetoDoBau);
 
+// Rota do Combate
+const rotaDbBuscarConcederOsDropsDoMonstro = require('./rotas/combate/rota_db_buscar_conceder_os_drops_do_monstro')(supabase);
+app.use('/api/combate', rotaDbBuscarConcederOsDropsDoMonstro);
+
 // Rota do Correio
 const rotaCorreio = require('./rotas/correio/rota_correio')(supabase);
 app.use('/api/correio', rotaCorreio);
 
+// Rota do Heroi
+const rotaSalvarEAtualizarStatusDoHeroi = require('./rotas/heroi/rota_salvar_e_atualizar_status_do_heroi')(supabase);
+app.use('/api/heroi', rotaSalvarEAtualizarStatusDoHeroi);
+
 // Rota do Market
 const rotaMarket = require('./rotas/market/rota_market')(supabase);
 app.use('/api/market', rotaMarket);
+
+// Rota da Mochila
+const rotaConsumirMaca = require('./rotas/mochila/rota_consumir_maca')(supabase);
+app.use('/api/mochila', rotaConsumirMaca);
+
+const rotaDbBuscarAMochilaDoUsuario = require('./rotas/mochila/rota_db_buscar_a_mochila_do_usuario')(supabase);
+app.use('/api/mochila', rotaDbBuscarAMochilaDoUsuario);
+
+// Rota dos Monstros
+const rotaDbBuscarListaDeMonstros = require('./rotas/monstros/rota_db_buscar_lista_de_monstros')(supabase);
+app.use('/api/monstros', rotaDbBuscarListaDeMonstros);
 
 // Rota do Ranking
 const rotaDbBuscarTop10Ranking = require('./rotas/ranking/rota_db_buscar_top10_ranking')(supabase);
