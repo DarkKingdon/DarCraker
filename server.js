@@ -75,6 +75,27 @@ app.use('/api/ranking', rotaDbBuscarTop10Ranking);
 const rotaSantuario = require('./rotas/santuario/rota_santuario')(supabase);
 app.use('/api/santuario', rotaSantuario);
 
+
+
+
+// Rota para buscar a tabela de níveis do jogador
+app.get('/api/heroi/tabela-niveis', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('tabela_de_nivel_do_jogador')
+            .select('*')
+            .order('nivel', { ascending: true });
+
+        if (error) throw error;
+
+        res.json(data);
+    } catch (err) {
+        console.error('Erro ao buscar tabela de níveis:', err.message);
+        res.status(500).json({ error: 'Erro ao buscar tabela de níveis.' });
+    }
+});
+
+
 // ----------------------------------------- //
 
 // Rota principal
