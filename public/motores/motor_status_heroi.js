@@ -2,7 +2,7 @@
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
 import { registrarExp } from '../modulos/modais/hunting_analyser/modal_hunting_analyser.js'; // 👈 Adicionado
 
-export function concederRecompensas(monstro, treinoSelecionado) {
+export async function concederRecompensas(monstro, treinoSelecionado) {
     let heroi = JSON.parse(localStorage.getItem('heroi'));
     if (!heroi) return;
 
@@ -16,8 +16,27 @@ export function concederRecompensas(monstro, treinoSelecionado) {
     if (heroi.exp_atual >= (heroi.exp_next_nivel ?? 10)) {
         heroi.nivel = (heroi.nivel ?? 1) + 1;
         heroi.exp_atual = heroi.exp_atual - heroi.exp_next_nivel;
-        heroi.exp_next_nivel = Math.floor(heroi.exp_next_nivel * 1.5);
         heroi.ponto_disponivel = (heroi.ponto_disponivel ?? 0) + 1;
+
+        // 🔄 BUSCA A EXP DO PRÓXIMO NÍVEL NA TABELA DO BANCO
+        try {
+            const resposta = await fetch('/api/heroi/tabela-niveis');
+            const tabelaNiveis = await resposta.json();
+            
+            // Procura o registro correspondente ao novo nível do herói
+            const proximoNivelDados = tabelaNiveis.find(n => n.nivel === heroi.nivel);
+            
+            if (proximoNivelDados) {
+                heroi.exp_next_nivel = proximoNivelDados.exp_next_nivel;
+            } else {
+                // Caso o herói passe do último nível cadastrado na tabela (Fallback)
+                heroi.exp_next_nivel = Math.floor(heroi.exp_next_nivel * 1.5);
+            }
+        } catch (e) {
+            console.error("Erro ao buscar próximo nível da tabela:", e);
+            heroi.exp_next_nivel = Math.floor(heroi.exp_next_nivel * 1.5);
+        }
+
         alert(`🎉 PARABÉNS! Você subiu para o Nível ${heroi.nivel}! Ganhou +1 Ponto Disponível.`);
     }
 
