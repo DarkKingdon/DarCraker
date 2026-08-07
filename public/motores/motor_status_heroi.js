@@ -1,6 +1,6 @@
 // public/motores/motor_status_heroi.js
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
-import { registrarExp } from '../modulos/modais/modal_hunting_analyser.js'; // 👈 Adicionado
+import { registrarExp } from '../modulos/modais/hunting_analyser/modal_hunting_analyser.js'; // 👈 Adicionado
 
 export function concederRecompensas(monstro, treinoSelecionado) {
     let heroi = JSON.parse(localStorage.getItem('heroi'));

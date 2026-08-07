@@ -2,9 +2,9 @@
 import { concederRecompensas } from './motor_status_heroi.js';
 import { iniciarCombate } from '../modulos/modulo_tela_de_combate.js';
 import { carregarStatus } from '../modulos/modulo_menu_esquerdo.js';
-import { abrirModalFinalDoCombate } from '../modulos/modais/modal_final_do_combate.js';
-import { registrarLoot } from '../modulos/modais/modal_hunting_analyser.js';
-import { registrarLootNoAnalyser } from '../modulos/modais/modal_loot_analyser.js';
+import { abrirModalFinalDoCombate } from '../modulos/modais/combate/modal_final_do_combate.js';
+import { registrarLoot } from '../modulos/modais/hunting_analyser/modal_hunting_analyser.js';
+import { registrarLootNoAnalyser } from '../modulos/modais/loot_analyser/modal_loot_analyser.js';
 
 let combatendo = false;
 let modoAuto = false;
