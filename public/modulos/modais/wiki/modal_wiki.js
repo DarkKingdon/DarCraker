@@ -104,7 +104,7 @@ export function abrirModalWiki() {
 
             <div class="grid-wiki-categorias">
                 <div class="card-wiki-categoria" id="btn-wiki-monstros">
-                    <img src="/img/monstros/poring.png" alt="Monstros" onerror="this.src='https://placehold.co/48x48/333/fff?text=Monstros';">
+                    <img src="/img/icones/wiki_monstros.png" alt="Monstros" onerror="this.src='https://placehold.co/48x48/333/fff?text=Monstros';">
                     <span>Monstros</span>
                 </div>
 
