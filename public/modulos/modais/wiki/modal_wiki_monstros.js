@@ -114,28 +114,34 @@ export async function abrirModalWikiMonstros() {
 
     // Evento ao clicar em um card de monstro
     document.querySelectorAll('#grid-wiki-monstros .card-monstro').forEach(card => {
-        card.onclick = () => {
-            const idx = card.getAttribute('data-idx');
-            const m = monstros[idx];
-            let imgName = m.imagem_url || 'poring.png';
-            let imgSrc = imgName.startsWith('http') ? imgName : `/img/monstros/${imgName.replace(/^\/img\/monstros\//, '')}`;
+    card.onclick = () => {
+        const idx = card.getAttribute('data-idx');
+        const m = monstros[idx];
+        let imgName = m.imagem_url || 'poring.png';
+        let imgSrc = imgName.startsWith('http') ? imgName : `/img/monstros/${imgName.replace(/^\/img\/monstros\//, '')}`;
 
-            const painel = document.getElementById('painel-detalhe-monstro');
-            painel.style.display = 'flex';
-            painel.innerHTML = `
-                <div style="text-align:center; min-width:120px;">
-                    <img src="${imgSrc}" style="width:64px; height:64px; object-fit:contain;" onerror="this.src='https://placehold.co/64x64/333/fff?text=Poring';">
-                    <h4 style="color:#00ff88; margin-top:5px;">${m.nome}</h4>
-                    <span style="font-size:12px; color:#aaa;">Nível ${m.nivel}</span>
-                </div>
-                <div class="detalhes-info-grid">
-                    <div><b>Ataque:</b> ${m.ataque_minimo} - ${m.ataque_maximo}</div>
-                    <div><b>Defesa:</b> ${m.defesa_minima} - ${m.defesa_maxima}</div>
-                    <div><b>HP:</b> ${m.vida_maxima || 20}</div>
-                    <div><b>EXP Fornecida:</b> ${m.recompensa_exp_atual || 1}</div>
-                    <div style="grid-column: span 2;"><b>Drops Conhecidos:</b> Jellopy, Maçã, Zaleia, Cents, DK Coin</div>
-                </div>
-            `;
-        };
-    });
+        // Formata os drops retornados do banco de dados
+        let dropsTexto = 'Nenhum drop conhecido';
+        if (m.drops && Array.isArray(m.drops) && m.drops.length > 0) {
+            dropsTexto = m.drops.join(', ');
+        }
+
+        const painel = document.getElementById('painel-detalhe-monstro');
+        painel.style.display = 'flex';
+        painel.innerHTML = `
+            <div style="text-align:center; min-width:120px;">
+                <img src="${imgSrc}" style="width:64px; height:64px; object-fit:contain;" onerror="this.src='https://placehold.co/64x64/333/fff?text=Poring';">
+                <h4 style="color:#00ff88; margin-top:5px;">${m.nome}</h4>
+                <span style="font-size:12px; color:#aaa;">Nível ${m.nivel}</span>
+            </div>
+            <div class="detalhes-info-grid">
+                <div><b>Ataque:</b> ${m.ataque_minimo} - ${m.ataque_maximo}</div>
+                <div><b>Defesa:</b> ${m.defesa_minima} - ${m.defesa_maxima}</div>
+                <div><b>HP:</b> ${m.vida_maxima || 20}</div>
+                <div><b>EXP Fornecida:</b> ${m.recompensa_exp_atual || 1}</div>
+                <div style="grid-column: span 2;"><b>Drops Conhecidos:</b> ${dropsTexto}</div>
+            </div>
+        `;
+    };
+});
 }
