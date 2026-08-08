@@ -10,6 +10,8 @@ import { abrirModalRanking } from './modais/ranking/modal_ranking.js';
 import { abrirModalSantuario } from './modais/santuario/modal_santuario.js';
 import { abrirModalStatus } from './modais/status_jogador/modal_status_jogador.js';
 
+import { abrirModalWiki } from './modais/wiki/modal_wiki.js';
+
 export function toggleStatus() {
     const painelStatus = document.getElementById('painel-status');
     if (painelStatus) {
@@ -244,6 +246,11 @@ function renderizarHTMLMenu() {
                         <span class="label-menu">Correio</span>
                     </div>
 
+                    <div id="btn-wiki" class="card-menu">
+                        <img src="/img/icones/wiki.png" alt="Wiki" onerror="this.src='https://placehold.co/38x38/333/fff?text=Wiki';">
+                        <span class="label-menu">Wiki</span>
+                    </div>
+
                     <div id="btn-sair" class="card-menu card-menu-sair">
                         <img src="/img/icones/sair.png" alt="Sair" onerror="this.src='https://placehold.co/38x38/333/fff?text=Icon';">
                         <span class="label-menu">Sair</span>
@@ -284,6 +291,7 @@ export function inicializarMenuSuperior() {
     document.getElementById('btn-hunts')?.addEventListener('click', abrirModalHunts);
     document.getElementById('btn-ranking')?.addEventListener('click', abrirModalRanking);
     document.getElementById('btn-bank')?.addEventListener('click', abrirModalBanco);
+    document.getElementById('btn-wiki')?.addEventListener('click', abrirModalWiki);
     document.getElementById('btn-correio')?.addEventListener('click', () => {
         abrirModalCorreio();
         // Opcional: Re-verifica quando o jogador interage
